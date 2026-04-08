@@ -1,0 +1,23 @@
+{
+  "name": "uninettuno-plus-chrome-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Uninettuno Plus Chrome extension",
+  "scripts": {
+    "build": "npm run build:content && npm run build:popup && tsc --noEmit",
+    "build:content": "esbuild src/content.ts --bundle --outfile=dist/content.js --platform=browser",
+    "build:popup": "esbuild src/popup.ts --bundle --outfile=dist/popup-bundled.js --platform=browser",
+    "build:watch": "tsc --watch",
+    "test": "node --test",
+    "prepare": "husky",
+    "commitlint": "commitlint --edit"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@types/chrome": "^0.1.39",
+    "esbuild": "^0.28.0",
+    "husky": "^9.1.7",
+    "typescript": "^6.0.2"
+  }
+}

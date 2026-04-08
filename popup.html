@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uninettuno Plus</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Playback Speed</h1>
+
+      <!-- Supported section -->
+      <div id="supportedSection" class="hidden">
+        <p class="message">
+          Choose a speed and the extension will apply it to the active
+          Uninettuno video.
+        </p>
+
+        <label class="field" for="playbackRateSelect">
+          <span>Speed</span>
+          <select id="playbackRateSelect">
+            <option value="1" selected>1</option>
+            <option value="1.25">1,25</option>  
+            <option value="1.5">1,5</option>
+            <option value="2">2</option>
+          </select>
+        </label>
+
+        <p id="status" class="status">
+          Select a value to apply it to the current tab.
+        </p>
+      </div>
+
+      <!-- Not supported section -->
+      <div id="notSupportedSection" class="hidden">
+        <p class="message">This extension is not supported for this page.</p>
+      </div>
+    </main>
+
+    <script src="dist/popup-bundled.js"></script>
+  </body>
+</html>

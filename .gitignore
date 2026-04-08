@@ -1,0 +1,30 @@
+node_modules/
+dist/
+*.js.map
+*.d.ts.map
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test output
+coverage/
+.nyc_output/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Environment/local overrides
+.env
+.env.*
+!.env.example
+
+# Temporary/generated assets
+icon.svg.png
+
+# User requested ignore
+.github/
