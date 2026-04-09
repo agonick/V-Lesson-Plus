@@ -1,0 +1,29 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch naming convention
+        shell: bash
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          echo "Branch: ${BRANCH_NAME}"
+
+          if [[ "${BRANCH_NAME}" =~ ^(feature|fix|chore|docs|refactor|test|build|ci|perf|hotfix)\/[a-z0-9._-]+$ ]]; then
+            echo "Branch name is valid."
+            exit 0
+          fi
+
+          echo "Invalid branch name '${BRANCH_NAME}'."
+          echo "Use one of: feature/<name>, fix/<name>, chore/<name>, docs/<name>, refactor/<name>, test/<name>, build/<name>, ci/<name>, perf/<name>, hotfix/<name>"
+          exit 1

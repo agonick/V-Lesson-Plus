@@ -1,3 +1,5 @@
+![V-Lesson Plus Icon](icons/icon128.png)
+
 # V-Lesson Plus
 
 This is an unofficial Chrome extension built with TypeScript and Manifest V3 for Uninettuno University pages.
@@ -38,6 +40,21 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 1. Open a page on https://www.uninettunouniversity.net/.
 2. The extension icon should appear only on that site.
 3. Click the extension icon to open the popup and change playback rate.
+
+## Collaboration and Policies
+
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security policy: [SECURITY.md](SECURITY.md)
+- License text: [LICENSE](LICENSE)
+
+## Contribute in 60 Seconds
+
+1. Create a branch: `feature/your-change` (or `fix/your-change`)
+2. Make your change
+3. Run checks: `npm run build` and `npm test`
+4. Push and open a pull request
+5. Use the PR template and link related issue (if any)
 
 ## License
 
