@@ -25,7 +25,7 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 
 ## How to build
 
-1. Install depedencies: `npm install`
+1. Install dependencies: `npm install`
 2. Compile TypeScript: `npm run build`
 3. The compiled files will be in `dist/`
 4. For development with watch mode: `npm run build:watch`
