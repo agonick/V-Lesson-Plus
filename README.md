@@ -38,3 +38,12 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 1. Open a page on https://www.uninettunouniversity.net/.
 2. The extension icon should appear only on that site.
 3. Click the extension icon to open the popup and change playback rate.
+
+## License
+
+This project is licensed under GNU GPL v3.0. See the LICENSE file for details.
+
+## Author
+
+- Name: Agostino Nicotra
+- Email: agonick-dev@proton.me

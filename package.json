@@ -2,7 +2,18 @@
   "name": "v-lesson-plus",
   "version": "1.0.0",
   "private": true,
+  "author": "Agostino Nicotra <agonick-dev@proton.me>",
+  "license": "GPL-3.0-only",
   "description": "V-Lesson Plus Chrome extension",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agonick/v-lesson-plus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agonick/v-lesson-plus/issues",
+    "email": "agonick-dev@proton.me"
+  },
+  "homepage": "https://github.com/agonick/v-lesson-plus#readme",
   "scripts": {
     "build": "npm run build:logic && npm run build:content && npm run build:popup && tsc --noEmit",
     "build:logic": "esbuild src/logic.ts --bundle --outfile=dist/logic.js --platform=browser --format=cjs",
