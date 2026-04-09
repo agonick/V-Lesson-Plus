@@ -10,7 +10,7 @@ Thank you for contributing.
 
 ## Branch naming
 
-Use one of these prefixes:
+Use one of these prefixes followed by a `/` and a short name that contains only **lowercase letters, digits, dots, hyphens, and underscores** (`[a-z0-9._-]+`). Spaces, uppercase letters, and camelCase are not allowed.
 
 - feature/<short-name>
 - fix/<short-name>
@@ -27,6 +27,9 @@ Examples:
 
 - feature/resume-playback
 - fix/popup-empty-state
+- chore/update-deps
+
+Names like `feature/resumePlayback` or `fix/Popup Empty State` are rejected by CI.
 
 ## Local setup
 
