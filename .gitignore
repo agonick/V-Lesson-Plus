@@ -26,5 +26,4 @@ coverage/
 # Temporary/generated assets
 icon.svg.png
 
-# User requested ignore
-.github/
+.github/plan.md
