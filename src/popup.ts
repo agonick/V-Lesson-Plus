@@ -32,13 +32,31 @@ interface SetPlaybackRateResponse {
   message: string;
 }
 
+const PLAYBACK_RATE_STORAGE_KEY = "vlp_lastPlaybackRate";
+const DEFAULT_PLAYBACK_RATE = "1";
+
+async function getStoredPlaybackRate(): Promise<string> {
+  const result = await chrome.storage.local.get(PLAYBACK_RATE_STORAGE_KEY);
+  const storedPlaybackRate = result[PLAYBACK_RATE_STORAGE_KEY];
+
+  if (typeof storedPlaybackRate !== "string") {
+    return DEFAULT_PLAYBACK_RATE;
+  }
+
+  return storedPlaybackRate;
+}
+
+async function setStoredPlaybackRate(playbackRate: string): Promise<void> {
+  await chrome.storage.local.set({ [PLAYBACK_RATE_STORAGE_KEY]: playbackRate });
+}
+
 async function checkVideoSupport(): Promise<void> {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const [tab] = tabs;
 
   if (!tab?.id) {
     console.log(
-      "[Uninettuno Plus] No active tab found while checking video support.",
+      "[V-Lesson Plus] No active tab found while checking video support.",
     );
     showNotSupported();
     return;
@@ -51,19 +69,12 @@ async function checkVideoSupport(): Promise<void> {
 
     if (response?.supported) {
       showSupported();
-      applyPlaybackRate(playbackRateSelect.value).catch((error: Error) => {
-        console.log(
-          "[Uninettuno Plus] Unexpected error while applying initial playback rate:",
-          error,
-        );
-        status.textContent = `Error: ${error.message}`;
-      });
     } else {
       showNotSupported();
     }
   } catch (error) {
     console.log(
-      "[Uninettuno Plus] Failed to check video element support:",
+      "[V-Lesson Plus] Failed to check video element support:",
       error,
     );
     showNotSupported();
@@ -86,7 +97,7 @@ async function applyPlaybackRate(playbackRate: string): Promise<void> {
 
   if (!tab?.id) {
     console.log(
-      "[Uninettuno Plus] No active tab found while trying to set playback rate.",
+      "[V-Lesson Plus] No active tab found while trying to set playback rate.",
     );
     status.textContent = "No active tab found.";
     return;
@@ -96,15 +107,17 @@ async function applyPlaybackRate(playbackRate: string): Promise<void> {
 
   if (normalizedPlaybackRate === null) {
     console.log(
-      `[Uninettuno Plus] Invalid playback rate selected: ${playbackRate}.`,
+      `[V-Lesson Plus] Invalid playback rate selected: ${playbackRate}.`,
     );
     status.textContent = "Invalid playback rate selected.";
     return;
   }
 
   console.log(
-    `[Uninettuno Plus] Sending playback rate ${normalizedPlaybackRate} to tab ${tab.id}.`,
+    `[V-Lesson Plus] Sending playback rate ${normalizedPlaybackRate} to tab ${tab.id}.`,
   );
+
+  await setStoredPlaybackRate(playbackRate);
 
   try {
     const response = (await chrome.tabs.sendMessage(tab.id, {
@@ -112,30 +125,35 @@ async function applyPlaybackRate(playbackRate: string): Promise<void> {
       playbackRate: normalizedPlaybackRate,
     })) as SetPlaybackRateResponse;
 
-    console.log("[Uninettuno Plus] Content script response:", response);
+    console.log("[V-Lesson Plus] Content script response:", response);
     status.textContent = response?.message ?? "Unable to apply playback rate.";
   } catch (error) {
-    console.log(
-      "[Uninettuno Plus] Failed to send playback rate message:",
-      error,
-    );
+    console.log("[V-Lesson Plus] Failed to send playback rate message:", error);
     status.textContent =
       "This page is not ready for the extension yet. Reload the page and try again.";
   }
 }
 
 playbackRateSelect.addEventListener("change", () => {
-  console.log(
-    `[Uninettuno Plus] Select changed to ${playbackRateSelect.value}.`,
-  );
+  console.log(`[V-Lesson Plus] Select changed to ${playbackRateSelect.value}.`);
   applyPlaybackRate(playbackRateSelect.value).catch((error: Error) => {
     console.log(
-      "[Uninettuno Plus] Unexpected error while applying playback rate:",
+      "[V-Lesson Plus] Unexpected error while applying playback rate:",
       error,
     );
     status.textContent = `Error: ${error.message}`;
   });
 });
 
-console.log("[Uninettuno Plus] Popup loaded.");
-checkVideoSupport();
+console.log("[V-Lesson Plus] Popup loaded.");
+
+getStoredPlaybackRate()
+  .then((storedPlaybackRate) => {
+    playbackRateSelect.value = storedPlaybackRate;
+  })
+  .catch((error: Error) => {
+    console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
+  })
+  .finally(() => {
+    checkVideoSupport();
+  });

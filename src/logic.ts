@@ -47,7 +47,7 @@ interface DocumentLike {
 
 // For browser compatibility, export as global for popup.html script tag loading
 if (typeof window !== "undefined") {
-  (window as any).UninettunoPlusLogic = {
+  (window as any).VLessonPlusLogic = {
     normalizePlaybackRate,
     getFirstVjsTechElement,
     applyPlaybackRateToDocument,

@@ -1,6 +1,6 @@
-# Uninettuno Plus
+# V-Lesson Plus
 
-This is a Chrome extension built with TypeScript and Manifest V3 for Uninettuno University pages.
+This is an unofficial Chrome extension built with TypeScript and Manifest V3 for Uninettuno University pages.
 
 ## What it does
 

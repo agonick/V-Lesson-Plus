@@ -1,29 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Uninettuno Plus icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="V-Lesson Plus icon">
   <!-- Background -->
   <rect x="8" y="8" width="112" height="112" rx="28" fill="#7dd3fc" />
   
   <!-- Book spine -->
-  <path d="M 44 28 L 47 28 L 47 102 Q 47 106 42 106 L 44 106 Q 49 106 49 102 L 49 28" fill="#1e3a8a" opacity="0.8"/>
+  <path d="M 60 28 L 64 28 L 64 102 Q 64 106 60 106 L 60 106 Q 56 106 56 102 L 56 28" fill="#1e3a8a" opacity="0.8"/>
   
   <!-- Left page -->
-  <rect x="49" y="28" width="35" height="74" fill="#f3f4f6" rx="3"/>
+  <rect x="32" y="28" width="32" height="74" fill="#f3f4f6" rx="3"/>
   
   <!-- Right page -->
-  <rect x="72" y="28" width="35" height="74" fill="#ffffff" rx="3"/>
+  <rect x="64" y="28" width="32" height="74" fill="#ffffff" rx="3"/>
   
   <!-- Left page lines -->
-  <line x1="56" y1="38" x2="78" y2="38" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="46" x2="78" y2="46" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="54" x2="78" y2="54" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="62" x2="78" y2="62" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="70" x2="78" y2="70" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="78" x2="78" y2="78" stroke="#d1d5db" stroke-width="1.5"/>
-  <line x1="56" y1="86" x2="78" y2="86" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="38" x2="58" y2="38" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="46" x2="58" y2="46" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="54" x2="58" y2="54" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="62" x2="58" y2="62" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="70" x2="58" y2="70" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="78" x2="58" y2="78" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="38" y1="86" x2="58" y2="86" stroke="#d1d5db" stroke-width="1.5"/>
+
+  <!-- Right page lines -->
+  <line x1="70" y1="38" x2="90" y2="38" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="46" x2="90" y2="46" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="54" x2="90" y2="54" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="62" x2="90" y2="62" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="70" x2="90" y2="70" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="78" x2="90" y2="78" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="70" y1="86" x2="90" y2="86" stroke="#e5e7eb" stroke-width="1.5"/>
   
   <!-- Centered book label -->
-  <text x="78" y="60" font-size="12" font-weight="700" text-anchor="middle" fill="#2563eb" font-family="Arial, sans-serif">UTIU+</text>
+  <text x="64" y="58" font-size="9" font-weight="700" text-anchor="middle" fill="#2563eb" font-family="Arial, sans-serif">V-Lesson</text>
+  <text x="64" y="69" font-size="9" font-weight="700" text-anchor="middle" fill="#2563eb" font-family="Arial, sans-serif">Plus</text>
   
   <!-- Centered play button (video playback) -->
-  <circle cx="78" cy="82" r="11" fill="#10b981"/>
-  <polygon points="75,75 75,89 86,82" fill="white"/>
+  <circle cx="64" cy="83" r="11" fill="#10b981"/>
+  <polygon points="61,76 61,90 72,83" fill="white"/>
 </svg>

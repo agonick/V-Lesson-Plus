@@ -14,7 +14,7 @@ interface SetPlaybackRateMessage {
 
 type ContentMessage = CheckVideoElementMessage | SetPlaybackRateMessage;
 
-const TOAST_ID = "uninettuno-plus-toast";
+const TOAST_ID = "v-lesson-plus-toast";
 const TOAST_HIDE_DELAY_MS = 1500;
 
 function showToast(message: string, isError = false): void {
@@ -57,9 +57,9 @@ function showToast(message: string, isError = false): void {
 const video = getFirstVjsTechElement(document);
 
 if (video) {
-  console.log("[Uninettuno Plus] Found .vjs-tech element on this page:", video);
+  console.log("[V-Lesson Plus] Found .vjs-tech element on this page:", video);
 } else {
-  console.log("[Uninettuno Plus] No .vjs-tech element found on this page.");
+  console.log("[V-Lesson Plus] No .vjs-tech element found on this page.");
 }
 
 chrome.runtime.onMessage.addListener(
@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener(
 
     if (!video) {
       console.log(
-        "[Uninettuno Plus] SET_PLAYBACK_RATE received, but no .vjs-tech element was found.",
+        "[V-Lesson Plus] SET_PLAYBACK_RATE received, but no .vjs-tech element was found.",
       );
       showToast("No video found on this page", true);
       sendResponse({
@@ -91,7 +91,7 @@ chrome.runtime.onMessage.addListener(
 
     const result = applyPlaybackRateToDocument(document, message.playbackRate);
     console.log(
-      `[Uninettuno Plus] Playback rate set to ${message.playbackRate}.`,
+      `[V-Lesson Plus] Playback rate set to ${message.playbackRate}.`,
       video,
     );
     if (result.ok) {

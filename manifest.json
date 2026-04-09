@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Uninettuno Plus",
+  "name": "V-Lesson Plus",
   "version": "1.0.0",
-  "description": "A Chrome extension for adjusting playback rate on Uninettuno University lessons.",
+  "description": "An unofficial Chrome extension for enhancing Uninettuno University lessons.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -10,7 +10,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Uninettuno Plus",
+    "default_title": "V-Lesson Plus",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -18,7 +18,7 @@
       "48": "icons/icon48.png"
     }
   },
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
   "content_scripts": [
     {
       "matches": ["https://www.uninettunouniversity.net/*"],
