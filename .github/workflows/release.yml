@@ -7,8 +7,6 @@ on:
 
 jobs:
   release:
-    # Skip runs triggered by the automated version-bump commit itself
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -17,9 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Full history + credentials needed to push the version bump back
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,19 +32,11 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Bump patch version in manifest.json
+      - name: Read version from manifest.json
         id: version
         run: |
-          NEW_VERSION=$(node scripts/bump-version.js)
-          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Commit and push version bump
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add manifest.json
-          git commit -m "chore: bump version to v${{ steps.version.outputs.version }} [skip ci]"
-          git push origin HEAD:${{ github.ref_name }}
+          VERSION=$(node -p "require('./manifest.json').version")
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Create extension zip
         run: |
