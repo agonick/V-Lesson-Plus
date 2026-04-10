@@ -1,0 +1,72 @@
+name: Release on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    # Skip runs triggered by the automated version-bump commit itself
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history + credentials needed to push the version bump back
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Bump patch version in manifest.json
+        id: version
+        run: |
+          NEW_VERSION=$(node scripts/bump-version.js)
+          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "chore: bump version to v${{ steps.version.outputs.version }} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Create extension zip
+        run: |
+          zip -r "v-lesson-plus-v${{ steps.version.outputs.version }}.zip" \
+            manifest.json \
+            popup.html \
+            popup.css \
+            icons/ \
+            dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          name: "V-Lesson Plus v${{ steps.version.outputs.version }}"
+          body: |
+            Automated release for V-Lesson Plus v${{ steps.version.outputs.version }}.
+
+            Download the zip below, unzip it, then load the folder as an unpacked extension in Chrome.
+          files: "v-lesson-plus-v${{ steps.version.outputs.version }}.zip"
+          make_latest: true
