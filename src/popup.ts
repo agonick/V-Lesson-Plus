@@ -13,10 +13,19 @@ interface MarkerListElement extends HTMLUListElement {}
 interface MarkerButtonElement extends HTMLButtonElement {}
 interface MarkerLabelInputElement extends HTMLInputElement {}
 
+interface LessonDetails {
+  courseId: string | null;
+  courseName: string | null;
+  professorName: string | null;
+  lessonNumber: string | null;
+  lessonName: string | null;
+}
+
 interface LessonContextResponse {
   supported: boolean;
   currentTime: number;
   url: string;
+  lessonDetails: LessonDetails;
 }
 
 interface SetPlaybackRateResponse {
@@ -47,6 +56,15 @@ const markerLabelInput = document.getElementById(
 ) as MarkerLabelInputElement;
 const markersList = document.getElementById("markersList") as MarkerListElement;
 const markersEmpty = document.getElementById("markersEmpty") as HTMLElement;
+const lessonCourseName = document.getElementById(
+  "lessonCourseName",
+) as HTMLElement;
+const lessonCourseId = document.getElementById("lessonCourseId") as HTMLElement;
+const lessonProfessor = document.getElementById(
+  "lessonProfessor",
+) as HTMLElement;
+const lessonNumber = document.getElementById("lessonNumber") as HTMLElement;
+const lessonName = document.getElementById("lessonName") as HTMLElement;
 
 if (
   !playbackRateSelect ||
@@ -56,7 +74,12 @@ if (
   !saveMarkerButton ||
   !markerLabelInput ||
   !markersList ||
-  !markersEmpty
+  !markersEmpty ||
+  !lessonCourseName ||
+  !lessonCourseId ||
+  !lessonProfessor ||
+  !lessonNumber ||
+  !lessonName
 ) {
   throw new Error("Required UI elements not found in popup.html");
 }
@@ -66,6 +89,19 @@ let currentLessonUrl = "";
 
 function setStatus(message: string): void {
   status.textContent = message;
+}
+
+function normalizeDetailValue(value: string | null | undefined): string {
+  const trimmedValue = (value ?? "").trim();
+  return trimmedValue === "" ? "-" : trimmedValue;
+}
+
+function renderLessonDetails(details: LessonDetails | null | undefined): void {
+  lessonCourseName.textContent = normalizeDetailValue(details?.courseName);
+  lessonCourseId.textContent = normalizeDetailValue(details?.courseId);
+  lessonProfessor.textContent = normalizeDetailValue(details?.professorName);
+  lessonNumber.textContent = normalizeDetailValue(details?.lessonNumber);
+  lessonName.textContent = normalizeDetailValue(details?.lessonName);
 }
 
 function showSupported(): void {
@@ -89,7 +125,8 @@ function isMarker(value: unknown): value is Marker {
     typeof candidate.id === "string" &&
     typeof candidate.time === "number" &&
     typeof candidate.createdAt === "number" &&
-    (candidate.label === undefined || validateMarkerLabel(String(candidate.label)) !== null)
+    (candidate.label === undefined ||
+      validateMarkerLabel(String(candidate.label)) !== null)
   );
 }
 
@@ -120,10 +157,9 @@ async function setStoredPlaybackRate(playbackRate: string): Promise<void> {
 }
 
 async function getMarkerStore(): Promise<MarkerStore> {
-  const result = (await chrome.storage.local.get(MARKERS_STORAGE_KEY)) as Record<
-    string,
-    unknown
-  >;
+  const result = (await chrome.storage.local.get(
+    MARKERS_STORAGE_KEY,
+  )) as Record<string, unknown>;
   const storedMarkers = result[MARKERS_STORAGE_KEY];
 
   if (
@@ -198,13 +234,15 @@ async function renderMarkersForCurrentLesson(): Promise<void> {
   }
 
   const store = await getMarkerStore();
-  const markers = getMarkersForUrl(store, currentLessonUrl).sort((left, right) => {
-    if (left.time !== right.time) {
-      return left.time - right.time;
-    }
+  const markers = getMarkersForUrl(store, currentLessonUrl).sort(
+    (left, right) => {
+      if (left.time !== right.time) {
+        return left.time - right.time;
+      }
 
-    return left.createdAt - right.createdAt;
-  });
+      return left.createdAt - right.createdAt;
+    },
+  );
 
   markersList.replaceChildren();
 
@@ -274,7 +312,7 @@ async function saveMarkerAtCurrentTime(): Promise<void> {
 
   if (validatedLabel === null) {
     setStatus(
-      'Marker label can only use letters, spaces, dots, commas, and hyphens.',
+      "Marker label can only use letters, spaces, dots, commas, and hyphens.",
     );
     return;
   }
@@ -422,6 +460,7 @@ getStoredPlaybackRate()
 
         showSupported();
         currentLessonUrl = normalizeLessonUrl(context.url);
+        renderLessonDetails(context.lessonDetails);
         return renderMarkersForCurrentLesson();
       })
       .catch((error: Error) => {
