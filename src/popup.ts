@@ -46,17 +46,27 @@ function getPopupElements(): PopupElements {
   const markerLabelInput = document.getElementById(
     "markerLabelInput",
   ) as HTMLInputElement | null;
-  const markersList = document.getElementById("markersList") as HTMLUListElement | null;
-  const markersEmpty = document.getElementById("markersEmpty") as HTMLElement | null;
+  const markersList = document.getElementById(
+    "markersList",
+  ) as HTMLUListElement | null;
+  const markersEmpty = document.getElementById(
+    "markersEmpty",
+  ) as HTMLElement | null;
   const lessonCourseName = document.getElementById(
     "lessonCourseName",
   ) as HTMLElement | null;
-  const lessonCourseId = document.getElementById("lessonCourseId") as HTMLElement | null;
+  const lessonCourseId = document.getElementById(
+    "lessonCourseId",
+  ) as HTMLElement | null;
   const lessonProfessor = document.getElementById(
     "lessonProfessor",
   ) as HTMLElement | null;
-  const lessonNumber = document.getElementById("lessonNumber") as HTMLElement | null;
-  const lessonName = document.getElementById("lessonName") as HTMLElement | null;
+  const lessonNumber = document.getElementById(
+    "lessonNumber",
+  ) as HTMLElement | null;
+  const lessonName = document.getElementById(
+    "lessonName",
+  ) as HTMLElement | null;
   const speedWarningBanner = document.getElementById(
     "speedWarningBanner",
   ) as HTMLElement | null;
@@ -107,7 +117,10 @@ const elements = getPopupElements();
 let currentLessonUrl = "";
 let currentLanguage: Language = "it";
 
-function t(key: string, replacements?: Record<string, string | number>): string {
+function t(
+  key: string,
+  replacements?: Record<string, string | number>,
+): string {
   return translate(currentLanguage, key, replacements);
 }
 
@@ -170,13 +183,15 @@ async function renderMarkersForCurrentLesson(): Promise<void> {
   }
 
   const store = await getMarkerStore(chrome.storage.local);
-  const markers = getMarkersForUrl(store, currentLessonUrl).sort((left, right) => {
-    if (left.time !== right.time) {
-      return left.time - right.time;
-    }
+  const markers = getMarkersForUrl(store, currentLessonUrl).sort(
+    (left, right) => {
+      if (left.time !== right.time) {
+        return left.time - right.time;
+      }
 
-    return left.createdAt - right.createdAt;
-  });
+      return left.createdAt - right.createdAt;
+    },
+  );
 
   renderMarkersList(
     markers,
@@ -285,15 +300,17 @@ elements.playbackRateSelect.addEventListener("change", () => {
 
   updateSpeedWarningBanner(elements.playbackRateSelect.value);
 
-  applyPlaybackRateToActiveTab(elements.playbackRateSelect.value, setStatus, t).catch(
-    (error: Error) => {
-      console.log(
-        "[V-Lesson Plus] Unexpected error while applying playback rate:",
-        error,
-      );
-      setStatus(`${t("errorPrefix")}: ${error.message}`);
-    },
-  );
+  applyPlaybackRateToActiveTab(
+    elements.playbackRateSelect.value,
+    setStatus,
+    t,
+  ).catch((error: Error) => {
+    console.log(
+      "[V-Lesson Plus] Unexpected error while applying playback rate:",
+      error,
+    );
+    setStatus(`${t("errorPrefix")}: ${error.message}`);
+  });
 });
 
 elements.saveMarkerButton.addEventListener("click", () => {
@@ -307,23 +324,41 @@ elements.languageToggleButton.addEventListener("click", () => {
   const nextLanguage: Language = currentLanguage === "it" ? "en" : "it";
   currentLanguage = nextLanguage;
 
-  applyTranslationsToDom(document, currentLanguage, elements.languageToggleButton);
+  applyTranslationsToDom(
+    document,
+    currentLanguage,
+    elements.languageToggleButton,
+  );
 
-  setStoredLanguage(chrome.storage.local, nextLanguage).catch((error: Error) => {
-    console.log("[V-Lesson Plus] Failed to store language selection:", error);
-  });
+  setStoredLanguage(chrome.storage.local, nextLanguage).catch(
+    (error: Error) => {
+      console.log("[V-Lesson Plus] Failed to store language selection:", error);
+    },
+  );
 
   renderMarkersForCurrentLesson().catch((error: Error) => {
-    console.log("[V-Lesson Plus] Failed to rerender markers after language switch:", error);
+    console.log(
+      "[V-Lesson Plus] Failed to rerender markers after language switch:",
+      error,
+    );
   });
 });
 
 async function initializePopup(): Promise<void> {
-  currentLanguage = await getStoredLanguage(chrome.storage.local, navigator.language);
-  applyTranslationsToDom(document, currentLanguage, elements.languageToggleButton);
+  currentLanguage = await getStoredLanguage(
+    chrome.storage.local,
+    navigator.language,
+  );
+  applyTranslationsToDom(
+    document,
+    currentLanguage,
+    elements.languageToggleButton,
+  );
 
   try {
-    const storedPlaybackRate = await getStoredPlaybackRate(chrome.storage.local);
+    const storedPlaybackRate = await getStoredPlaybackRate(
+      chrome.storage.local,
+    );
     elements.playbackRateSelect.value = storedPlaybackRate;
     updateSpeedWarningBanner(storedPlaybackRate);
   } catch (error) {

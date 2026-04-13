@@ -8,7 +8,19 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 
 - Shows the extension action only on Uninettuno University pages.
 - Lets you open the popup and change playback rate on those pages.
-- Lets you save quick lesson markers tied to the current lesson URL and jump back to them later.
+- Auto-applies the last selected playback rate when a supported lesson page is opened.
+- Lets you save lesson markers tied to the current lesson URL and jump back to them later.
+- Shows marker labels in the popup and on the player timeline (hover tooltip on timeline markers).
+- Extracts and shows lesson details in the popup (course, professor, lesson number, lesson name).
+- Supports UI language switch in the popup (Italian/English), with language preference saved in local storage.
+- Shows a visible warning banner when 2x speed is selected.
+
+## Tracking warning
+
+- This extension is built for usability and study convenience, not to bypass platform rules.
+- On some platforms, higher playback speed (especially 2x) may lead to incomplete tracking credit.
+- Recommended safer speeds: 1.25x or 1.5x.
+- Always verify your official lesson tracking status before relying on completion for exam admission requirements.
 
 ## Project structure
 
@@ -40,8 +52,13 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 
 1. Open a page on https://www.uninettunouniversity.net/.
 2. The extension icon should appear only on that site.
-3. Click the extension icon to open the popup and change playback rate.
-4. Save a marker, then use the marker list to jump back to that lesson time.
+3. Click the extension icon to open the popup.
+4. Change playback rate and verify it is applied to the active video.
+5. Refresh or open another supported lesson page and verify the saved playback rate is auto-applied.
+6. Save a marker with an optional label, then use the marker list to jump back to that lesson time.
+7. Hover timeline markers on the player and verify label tooltip visibility.
+8. Switch popup language (IT/EN) and verify translated UI labels/messages.
+9. Select 2x and verify the tracking warning banner is shown.
 
 ## Collaboration and Policies
 
