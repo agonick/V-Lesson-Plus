@@ -65,6 +65,9 @@ const lessonProfessor = document.getElementById(
 ) as HTMLElement;
 const lessonNumber = document.getElementById("lessonNumber") as HTMLElement;
 const lessonName = document.getElementById("lessonName") as HTMLElement;
+const speedWarningBanner = document.getElementById(
+  "speedWarningBanner",
+) as HTMLElement;
 
 if (
   !playbackRateSelect ||
@@ -79,7 +82,8 @@ if (
   !lessonCourseId ||
   !lessonProfessor ||
   !lessonNumber ||
-  !lessonName
+  !lessonName ||
+  !speedWarningBanner
 ) {
   throw new Error("Required UI elements not found in popup.html");
 }
@@ -89,6 +93,12 @@ let currentLessonUrl = "";
 
 function setStatus(message: string): void {
   status.textContent = message;
+  if (message.trim() === "") {
+    status.classList.add("hidden");
+    return;
+  }
+
+  status.classList.remove("hidden");
 }
 
 function normalizeDetailValue(value: string | null | undefined): string {
@@ -425,6 +435,14 @@ async function applyPlaybackRate(playbackRate: string): Promise<void> {
 
 playbackRateSelect.addEventListener("change", () => {
   console.log(`[V-Lesson Plus] Select changed to ${playbackRateSelect.value}.`);
+
+  // Show/hide warning banner for 2x speed
+  if (playbackRateSelect.value === "2") {
+    speedWarningBanner.classList.remove("hidden");
+  } else {
+    speedWarningBanner.classList.add("hidden");
+  }
+
   applyPlaybackRate(playbackRateSelect.value).catch((error: Error) => {
     console.log(
       "[V-Lesson Plus] Unexpected error while applying playback rate:",
@@ -446,6 +464,13 @@ console.log("[V-Lesson Plus] Popup loaded.");
 getStoredPlaybackRate()
   .then((storedPlaybackRate) => {
     playbackRateSelect.value = storedPlaybackRate;
+
+    // Show warning banner if 2x is stored
+    if (storedPlaybackRate === "2") {
+      speedWarningBanner.classList.remove("hidden");
+    } else {
+      speedWarningBanner.classList.add("hidden");
+    }
   })
   .catch((error: Error) => {
     console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);

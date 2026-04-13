@@ -54,6 +54,10 @@
               <option value="2">2</option>
             </select>
           </label>
+
+          <div id="speedWarningBanner" class="speed-warning hidden">
+            <strong>⚠️ Warning:</strong> 2x speed may result in incomplete tracking. Use 1.25x or 1.5x for safety. Always verify your tracking status.
+          </div>
         </section>
 
         <section class="panel marker-panel">
@@ -85,9 +89,7 @@
           <ul id="markersList" class="marker-list"></ul>
         </section>
 
-        <p id="status" class="status">
-          Select a value to apply it to the current tab.
-        </p>
+        <p id="status" class="status hidden" aria-live="polite"></p>
       </div>
 
       <!-- Not supported section -->

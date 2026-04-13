@@ -2,6 +2,10 @@ import {
   getFirstVjsTechElement,
   applyPlaybackRateToDocument,
   formatMarkerTime,
+  getStoredMarkersForUrl,
+  renderTimelineMarkers,
+  normalizeLessonUrl,
+  normalizePlaybackRate,
 } from "./logic";
 
 interface CheckVideoElementMessage {
@@ -219,6 +223,71 @@ const video = getVideoElement();
 
 if (video) {
   console.log("[V-Lesson Plus] Found .vjs-tech element on this page:", video);
+
+  // Auto-apply saved playback rate on page load
+  async function applyStoredPlaybackRate(): Promise<void> {
+    try {
+      const result = await chrome.storage.local.get("vlp_lastPlaybackRate");
+      const storedRate = result.vlp_lastPlaybackRate;
+
+      if (typeof storedRate === "string") {
+        const normalizedRate = normalizePlaybackRate(storedRate);
+        if (normalizedRate !== null && video) {
+          (video as any).playbackRate = normalizedRate;
+          console.log(
+            `[V-Lesson Plus] Applied stored playback rate ${normalizedRate}x on page load.`,
+          );
+        }
+      }
+    } catch (error) {
+      console.log(
+        "[V-Lesson Plus] Failed to apply stored playback rate:",
+        error,
+      );
+    }
+  }
+
+  // Apply saved rate immediately
+  applyStoredPlaybackRate();
+
+  // Also re-apply when video metadata loads
+  video.addEventListener("loadedmetadata", () => {
+    applyStoredPlaybackRate().catch((error) => {
+      console.log("[V-Lesson Plus] Failed to re-apply playback rate:", error);
+    });
+  });
+
+  // Initialize timeline markers
+  async function setupTimelineMarkers(): Promise<void> {
+    const normalizedUrl = normalizeLessonUrl(window.location.href);
+    const markers = await getStoredMarkersForUrl(normalizedUrl);
+    if (video) {
+      renderTimelineMarkers(document, video, markers);
+    }
+  }
+
+  setupTimelineMarkers().catch((error) => {
+    console.log("[V-Lesson Plus] Failed to setup timeline markers:", error);
+  });
+
+  // Re-render markers when video metadata loads (duration becomes available)
+  video.addEventListener("loadedmetadata", () => {
+    setupTimelineMarkers().catch((error) => {
+      console.log("[V-Lesson Plus] Failed to update timeline markers:", error);
+    });
+  });
+
+  // Listen for storage changes (markers added/deleted from popup)
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "local" && changes.vlp_markers) {
+      setupTimelineMarkers().catch((error) => {
+        console.log(
+          "[V-Lesson Plus] Failed to update timeline markers after storage change:",
+          error,
+        );
+      });
+    }
+  });
 } else {
   console.log("[V-Lesson Plus] No .vjs-tech element found on this page.");
 }
