@@ -137,10 +137,7 @@ export async function getStoredMarkersForUrl(
 
     return markers.filter(isMarker);
   } catch (error) {
-    console.log(
-      "[V-Lesson Plus] Failed to load markers from storage:",
-      error,
-    );
+    console.log("[V-Lesson Plus] Failed to load markers from storage:", error);
     return [];
   }
 }
@@ -166,7 +163,11 @@ export function renderTimelineMarkers(
   existingMarkers.forEach((marker) => marker.remove());
 
   // If no markers or video duration unknown, return early
-  if (markers.length === 0 || !video.duration || !Number.isFinite(video.duration)) {
+  if (
+    markers.length === 0 ||
+    !video.duration ||
+    !Number.isFinite(video.duration)
+  ) {
     return;
   }
 
