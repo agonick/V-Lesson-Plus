@@ -8,24 +8,56 @@
   </head>
   <body>
     <main>
-      <h1>Playback Speed</h1>
+      <h1>V-Lesson Plus</h1>
 
       <!-- Supported section -->
-      <div id="supportedSection" class="hidden">
-        <p class="message">
-          Choose a speed and the extension will apply it to the active
-          Uninettuno video.
-        </p>
+      <div id="supportedSection" class="hidden extension-layout">
+        <section class="panel playback-panel">
+          <h2>Playback</h2>
+          <p class="message">
+            Choose a speed and the extension will apply it to the active
+            Uninettuno video.
+          </p>
 
-        <label class="field" for="playbackRateSelect">
-          <span>Speed</span>
-          <select id="playbackRateSelect">
-            <option value="1" selected>1</option>
-            <option value="1.25">1,25</option>  
-            <option value="1.5">1,5</option>
-            <option value="2">2</option>
-          </select>
-        </label>
+          <label class="field" for="playbackRateSelect">
+            <span>Speed</span>
+            <select id="playbackRateSelect">
+              <option value="1" selected>1</option>
+              <option value="1.25">1,25</option>
+              <option value="1.5">1,5</option>
+              <option value="2">2</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="panel marker-panel">
+          <div class="marker-panel-header">
+            <h2>Markers</h2>
+            <button id="saveMarkerButton" type="button">Save marker</button>
+          </div>
+
+          <p class="message marker-message">
+            Save the current lesson time and jump back to it later.
+          </p>
+
+          <label class="field" for="markerLabelInput">
+            <span>Marker label</span>
+            <input
+              id="markerLabelInput"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Optional label"
+            />
+          </label>
+
+          <p id="markersEmpty" class="status marker-empty">
+            No markers saved for this lesson yet.
+          </p>
+
+          <ul id="markersList" class="marker-list"></ul>
+        </section>
 
         <p id="status" class="status">
           Select a value to apply it to the current tab.

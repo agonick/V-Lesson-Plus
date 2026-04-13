@@ -8,6 +8,7 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 
 - Shows the extension action only on Uninettuno University pages.
 - Lets you open the popup and change playback rate on those pages.
+- Lets you save quick lesson markers tied to the current lesson URL and jump back to them later.
 
 ## Project structure
 
@@ -40,6 +41,7 @@ This is an unofficial Chrome extension built with TypeScript and Manifest V3 for
 1. Open a page on https://www.uninettunouniversity.net/.
 2. The extension icon should appear only on that site.
 3. Click the extension icon to open the popup and change playback rate.
+4. Save a marker, then use the marker list to jump back to that lesson time.
 
 ## Collaboration and Policies
 

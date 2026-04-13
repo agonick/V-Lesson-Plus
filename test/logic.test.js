@@ -5,6 +5,9 @@ const {
   normalizePlaybackRate,
   getFirstVjsTechElement,
   applyPlaybackRateToDocument,
+  normalizeLessonUrl,
+  formatMarkerTime,
+  validateMarkerLabel,
 } = require('../dist/logic.js');
 
 test('normalizePlaybackRate accepts allowed numeric values', () => {
@@ -62,4 +65,34 @@ test('applyPlaybackRateToDocument reports when no matching element exists', () =
     ok: false,
     message: 'No .vjs-tech element found on this page.',
   });
+});
+
+test('normalizeLessonUrl removes the hash but keeps the lesson URL', () => {
+  assert.equal(
+    normalizeLessonUrl('https://example.com/lesson?id=42#marker'),
+    'https://example.com/lesson?id=42',
+  );
+});
+
+test('normalizeLessonUrl returns the original value for invalid URLs', () => {
+  assert.equal(normalizeLessonUrl('/relative/path'), '/relative/path');
+});
+
+test('formatMarkerTime formats marker timestamps', () => {
+  assert.equal(formatMarkerTime(5), '0:05');
+  assert.equal(formatMarkerTime(65.9), '1:05');
+  assert.equal(formatMarkerTime(3665), '1:01:05');
+});
+
+test('validateMarkerLabel accepts safe labels', () => {
+  assert.equal(validateMarkerLabel('Intro - Part 1'), 'Intro - Part 1');
+  assert.equal(validateMarkerLabel('Lesson, recap.'), 'Lesson, recap.');
+  assert.equal(validateMarkerLabel('1st marker'), '1st marker');
+});
+
+test('validateMarkerLabel trims and rejects unsafe labels', () => {
+  assert.equal(validateMarkerLabel('  Study note  '), 'Study note');
+  assert.equal(validateMarkerLabel(''), '');
+  assert.equal(validateMarkerLabel('<script>alert(1)</script>'), null);
+  assert.equal(validateMarkerLabel('name_01'), null);
 });

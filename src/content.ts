@@ -1,6 +1,7 @@
 import {
   getFirstVjsTechElement,
   applyPlaybackRateToDocument,
+  formatMarkerTime,
 } from "./logic";
 
 interface CheckVideoElementMessage {
@@ -12,10 +13,38 @@ interface SetPlaybackRateMessage {
   playbackRate: number;
 }
 
-type ContentMessage = CheckVideoElementMessage | SetPlaybackRateMessage;
+interface GetLessonContextMessage {
+  type: "GET_LESSON_CONTEXT";
+}
+
+interface SeekToTimeMessage {
+  type: "SEEK_TO_TIME";
+  time: number;
+}
+
+type ContentMessage =
+  | CheckVideoElementMessage
+  | SetPlaybackRateMessage
+  | GetLessonContextMessage
+  | SeekToTimeMessage;
+
+interface LessonContextResponse {
+  supported: boolean;
+  currentTime: number;
+  url: string;
+}
+
+interface SeekToTimeResponse {
+  ok: boolean;
+  message: string;
+}
 
 const TOAST_ID = "v-lesson-plus-toast";
 const TOAST_HIDE_DELAY_MS = 1500;
+
+function getVideoElement(): HTMLMediaElement | null {
+  return getFirstVjsTechElement(document);
+}
 
 function showToast(message: string, isError = false): void {
   const existing = document.getElementById(TOAST_ID);
@@ -54,7 +83,7 @@ function showToast(message: string, isError = false): void {
   }, TOAST_HIDE_DELAY_MS);
 }
 
-const video = getFirstVjsTechElement(document);
+const video = getVideoElement();
 
 if (video) {
   console.log("[V-Lesson Plus] Found .vjs-tech element on this page:", video);
@@ -73,7 +102,42 @@ chrome.runtime.onMessage.addListener(
       return;
     }
 
+    if (message?.type === "GET_LESSON_CONTEXT") {
+      const currentVideo = getVideoElement();
+
+      sendResponse({
+        supported: currentVideo !== null,
+        currentTime: currentVideo?.currentTime ?? 0,
+        url: window.location.href,
+      } satisfies LessonContextResponse);
+      return;
+    }
+
     if (message?.type !== "SET_PLAYBACK_RATE") {
+      if (message?.type !== "SEEK_TO_TIME") {
+        return;
+      }
+
+      const currentVideo = getVideoElement();
+
+      if (!currentVideo) {
+        console.log(
+          "[V-Lesson Plus] SEEK_TO_TIME received, but no .vjs-tech element was found.",
+        );
+        showToast("No video found on this page", true);
+        sendResponse({
+          ok: false,
+          message: "No .vjs-tech element found on this page.",
+        } satisfies SeekToTimeResponse);
+        return;
+      }
+
+      currentVideo.currentTime = message.time;
+      showToast(`Jumped to ${formatMarkerTime(message.time)}`);
+      sendResponse({
+        ok: true,
+        message: `Jumped to ${message.time}.`,
+      } satisfies SeekToTimeResponse);
       return;
     }
 

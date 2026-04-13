@@ -18,10 +18,124 @@ h1 {
   font-weight: 600;
 }
 
+.extension-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .message {
-  margin: 8px 0 12px;
+  margin: 0;
   font-size: 13px;
   line-height: 1.4;
+}
+
+.marker-panel {
+  gap: 10px;
+}
+
+.marker-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.marker-panel-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.marker-message {
+  margin-top: -2px;
+}
+
+.marker-empty {
+  margin-top: 0;
+}
+
+.marker-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.marker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.marker-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.marker-label {
+  display: inline-flex;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.marker-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.marker-jump,
+.marker-delete {
+  margin-top: 0;
+  padding: 7px 10px;
+}
+
+.marker-jump {
+  background: #0f766e;
+}
+
+.marker-jump:hover {
+  background: #115e59;
+}
+
+.marker-delete {
+  background: #b91c1c;
+}
+
+.marker-delete:hover {
+  background: #991b1b;
 }
 
 .field {
@@ -41,8 +155,18 @@ select {
   font-size: 13px;
 }
 
+input[type="text"] {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  font: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
 .status {
-  margin: 10px 0 0;
+  margin: 0;
   font-size: 12px;
   color: #666;
 }
@@ -57,7 +181,7 @@ button {
   color: white;
   background: #2563eb;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 button:hover {
