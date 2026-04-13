@@ -1,216 +1,142 @@
 import {
   formatMarkerTime,
-  MARKERS_STORAGE_KEY,
   normalizeLessonUrl,
-  normalizePlaybackRate,
   validateMarkerLabel,
   type Marker,
-  type MarkerStore,
 } from "./logic";
+import {
+  applyTranslationsToDom,
+  getStoredLanguage,
+  setStoredLanguage,
+  translate,
+  type Language,
+} from "./popup/i18n";
+import { renderLessonDetails } from "./popup/lesson-details";
+import {
+  createMarkerId,
+  getMarkerStore,
+  getMarkersForUrl,
+  renderMarkersList,
+  setMarkerStore,
+} from "./popup/markers";
+import {
+  applyPlaybackRateToActiveTab,
+  getStoredPlaybackRate,
+} from "./popup/playback";
+import type {
+  LessonContextResponse,
+  PopupElements,
+  SeekToTimeResponse,
+} from "./popup/types";
 
-interface StatusElement extends HTMLElement {}
-interface MarkerListElement extends HTMLUListElement {}
-interface MarkerButtonElement extends HTMLButtonElement {}
-interface MarkerLabelInputElement extends HTMLInputElement {}
+function getPopupElements(): PopupElements {
+  const playbackRateSelect = document.getElementById(
+    "playbackRateSelect",
+  ) as HTMLSelectElement | null;
+  const status = document.getElementById("status") as HTMLElement | null;
+  const supportedSection = document.getElementById(
+    "supportedSection",
+  ) as HTMLDivElement | null;
+  const notSupportedSection = document.getElementById(
+    "notSupportedSection",
+  ) as HTMLDivElement | null;
+  const saveMarkerButton = document.getElementById(
+    "saveMarkerButton",
+  ) as HTMLButtonElement | null;
+  const markerLabelInput = document.getElementById(
+    "markerLabelInput",
+  ) as HTMLInputElement | null;
+  const markersList = document.getElementById("markersList") as HTMLUListElement | null;
+  const markersEmpty = document.getElementById("markersEmpty") as HTMLElement | null;
+  const lessonCourseName = document.getElementById(
+    "lessonCourseName",
+  ) as HTMLElement | null;
+  const lessonCourseId = document.getElementById("lessonCourseId") as HTMLElement | null;
+  const lessonProfessor = document.getElementById(
+    "lessonProfessor",
+  ) as HTMLElement | null;
+  const lessonNumber = document.getElementById("lessonNumber") as HTMLElement | null;
+  const lessonName = document.getElementById("lessonName") as HTMLElement | null;
+  const speedWarningBanner = document.getElementById(
+    "speedWarningBanner",
+  ) as HTMLElement | null;
+  const languageToggleButton = document.getElementById(
+    "languageToggleButton",
+  ) as HTMLButtonElement | null;
 
-interface LessonDetails {
-  courseId: string | null;
-  courseName: string | null;
-  professorName: string | null;
-  lessonNumber: string | null;
-  lessonName: string | null;
+  if (
+    !playbackRateSelect ||
+    !status ||
+    !supportedSection ||
+    !notSupportedSection ||
+    !saveMarkerButton ||
+    !markerLabelInput ||
+    !markersList ||
+    !markersEmpty ||
+    !lessonCourseName ||
+    !lessonCourseId ||
+    !lessonProfessor ||
+    !lessonNumber ||
+    !lessonName ||
+    !speedWarningBanner ||
+    !languageToggleButton
+  ) {
+    throw new Error("Required UI elements not found in popup.html");
+  }
+
+  return {
+    playbackRateSelect,
+    status,
+    supportedSection,
+    notSupportedSection,
+    saveMarkerButton,
+    markerLabelInput,
+    markersList,
+    markersEmpty,
+    lessonCourseName,
+    lessonCourseId,
+    lessonProfessor,
+    lessonNumber,
+    lessonName,
+    speedWarningBanner,
+    languageToggleButton,
+  };
 }
 
-interface LessonContextResponse {
-  supported: boolean;
-  currentTime: number;
-  url: string;
-  lessonDetails: LessonDetails;
-}
-
-interface SetPlaybackRateResponse {
-  ok: boolean;
-  message: string;
-}
-
-interface SeekToTimeResponse {
-  ok: boolean;
-  message: string;
-}
-
-const playbackRateSelect = document.getElementById(
-  "playbackRateSelect",
-) as HTMLSelectElement;
-const status = document.getElementById("status") as StatusElement;
-const supportedSection = document.getElementById(
-  "supportedSection",
-) as HTMLDivElement;
-const notSupportedSection = document.getElementById(
-  "notSupportedSection",
-) as HTMLDivElement;
-const saveMarkerButton = document.getElementById(
-  "saveMarkerButton",
-) as MarkerButtonElement;
-const markerLabelInput = document.getElementById(
-  "markerLabelInput",
-) as MarkerLabelInputElement;
-const markersList = document.getElementById("markersList") as MarkerListElement;
-const markersEmpty = document.getElementById("markersEmpty") as HTMLElement;
-const lessonCourseName = document.getElementById(
-  "lessonCourseName",
-) as HTMLElement;
-const lessonCourseId = document.getElementById("lessonCourseId") as HTMLElement;
-const lessonProfessor = document.getElementById(
-  "lessonProfessor",
-) as HTMLElement;
-const lessonNumber = document.getElementById("lessonNumber") as HTMLElement;
-const lessonName = document.getElementById("lessonName") as HTMLElement;
-const speedWarningBanner = document.getElementById(
-  "speedWarningBanner",
-) as HTMLElement;
-
-if (
-  !playbackRateSelect ||
-  !status ||
-  !supportedSection ||
-  !notSupportedSection ||
-  !saveMarkerButton ||
-  !markerLabelInput ||
-  !markersList ||
-  !markersEmpty ||
-  !lessonCourseName ||
-  !lessonCourseId ||
-  !lessonProfessor ||
-  !lessonNumber ||
-  !lessonName ||
-  !speedWarningBanner
-) {
-  throw new Error("Required UI elements not found in popup.html");
-}
-
-const DEFAULT_PLAYBACK_RATE = "1";
+const elements = getPopupElements();
 let currentLessonUrl = "";
+let currentLanguage: Language = "it";
+
+function t(key: string, replacements?: Record<string, string | number>): string {
+  return translate(currentLanguage, key, replacements);
+}
 
 function setStatus(message: string): void {
-  status.textContent = message;
+  elements.status.textContent = message;
   if (message.trim() === "") {
-    status.classList.add("hidden");
+    elements.status.classList.add("hidden");
     return;
   }
 
-  status.classList.remove("hidden");
-}
-
-function normalizeDetailValue(value: string | null | undefined): string {
-  const trimmedValue = (value ?? "").trim();
-  return trimmedValue === "" ? "-" : trimmedValue;
-}
-
-function renderLessonDetails(details: LessonDetails | null | undefined): void {
-  lessonCourseName.textContent = normalizeDetailValue(details?.courseName);
-  lessonCourseId.textContent = normalizeDetailValue(details?.courseId);
-  lessonProfessor.textContent = normalizeDetailValue(details?.professorName);
-  lessonNumber.textContent = normalizeDetailValue(details?.lessonNumber);
-  lessonName.textContent = normalizeDetailValue(details?.lessonName);
+  elements.status.classList.remove("hidden");
 }
 
 function showSupported(): void {
-  supportedSection.classList.remove("hidden");
-  notSupportedSection.classList.add("hidden");
+  elements.supportedSection.classList.remove("hidden");
+  elements.notSupportedSection.classList.add("hidden");
 }
 
 function showNotSupported(): void {
-  supportedSection.classList.add("hidden");
-  notSupportedSection.classList.remove("hidden");
+  elements.supportedSection.classList.add("hidden");
+  elements.notSupportedSection.classList.remove("hidden");
 }
 
-function isMarker(value: unknown): value is Marker {
-  if (typeof value !== "object" || value === null) {
-    return false;
+function updateSpeedWarningBanner(playbackRate: string): void {
+  if (playbackRate === "2") {
+    elements.speedWarningBanner.classList.remove("hidden");
+  } else {
+    elements.speedWarningBanner.classList.add("hidden");
   }
-
-  const candidate = value as Record<string, unknown>;
-
-  return (
-    typeof candidate.id === "string" &&
-    typeof candidate.time === "number" &&
-    typeof candidate.createdAt === "number" &&
-    (candidate.label === undefined ||
-      validateMarkerLabel(String(candidate.label)) !== null)
-  );
-}
-
-function createMarkerId(): string {
-  return `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-}
-
-function createMarkerLabelElement(label: string): HTMLSpanElement {
-  const markerLabelElement = document.createElement("span");
-  markerLabelElement.className = "marker-label";
-  markerLabelElement.textContent = label;
-  return markerLabelElement;
-}
-
-async function getStoredPlaybackRate(): Promise<string> {
-  const result = await chrome.storage.local.get("vlp_lastPlaybackRate");
-  const storedPlaybackRate = result.vlp_lastPlaybackRate;
-
-  if (typeof storedPlaybackRate !== "string") {
-    return DEFAULT_PLAYBACK_RATE;
-  }
-
-  return storedPlaybackRate;
-}
-
-async function setStoredPlaybackRate(playbackRate: string): Promise<void> {
-  await chrome.storage.local.set({ vlp_lastPlaybackRate: playbackRate });
-}
-
-async function getMarkerStore(): Promise<MarkerStore> {
-  const result = (await chrome.storage.local.get(
-    MARKERS_STORAGE_KEY,
-  )) as Record<string, unknown>;
-  const storedMarkers = result[MARKERS_STORAGE_KEY];
-
-  if (
-    typeof storedMarkers !== "object" ||
-    storedMarkers === null ||
-    Array.isArray(storedMarkers)
-  ) {
-    return {};
-  }
-
-  const store: MarkerStore = {};
-
-  for (const [url, markers] of Object.entries(
-    storedMarkers as Record<string, unknown>,
-  )) {
-    if (!Array.isArray(markers)) {
-      continue;
-    }
-
-    const validMarkers = markers.filter(isMarker);
-    if (validMarkers.length > 0) {
-      store[url] = validMarkers;
-    }
-  }
-
-  return store;
-}
-
-async function setMarkerStore(store: MarkerStore): Promise<void> {
-  await chrome.storage.local.set({ [MARKERS_STORAGE_KEY]: store });
-}
-
-function getMarkersForUrl(store: MarkerStore, url: string): Marker[] {
-  const normalizedUrl = normalizeLessonUrl(url);
-  const markers = store[normalizedUrl];
-
-  if (!Array.isArray(markers)) {
-    return [];
-  }
-
-  return markers.filter(isMarker);
 }
 
 async function loadLessonContext(): Promise<LessonContextResponse | null> {
@@ -238,96 +164,59 @@ async function loadLessonContext(): Promise<LessonContextResponse | null> {
 
 async function renderMarkersForCurrentLesson(): Promise<void> {
   if (!currentLessonUrl) {
-    markersList.replaceChildren();
-    markersEmpty.classList.remove("hidden");
+    elements.markersList.replaceChildren();
+    elements.markersEmpty.classList.remove("hidden");
     return;
   }
 
-  const store = await getMarkerStore();
-  const markers = getMarkersForUrl(store, currentLessonUrl).sort(
-    (left, right) => {
-      if (left.time !== right.time) {
-        return left.time - right.time;
-      }
-
-      return left.createdAt - right.createdAt;
-    },
-  );
-
-  markersList.replaceChildren();
-
-  if (markers.length === 0) {
-    markersEmpty.classList.remove("hidden");
-    return;
-  }
-
-  markersEmpty.classList.add("hidden");
-
-  for (const marker of markers) {
-    const item = document.createElement("li");
-    item.className = "marker-item";
-
-    const jumpButton = document.createElement("button");
-    jumpButton.type = "button";
-    jumpButton.className = "marker-jump";
-    jumpButton.textContent = formatMarkerTime(marker.time);
-    jumpButton.addEventListener("click", () => {
-      jumpToMarker(marker).catch((error: Error) => {
-        console.log("[V-Lesson Plus] Failed to jump to marker:", error);
-        setStatus(`Error: ${error.message}`);
-      });
-    });
-
-    const meta = document.createElement("div");
-    meta.className = "marker-meta";
-    if (marker.label) {
-      meta.append(createMarkerLabelElement(marker.label));
+  const store = await getMarkerStore(chrome.storage.local);
+  const markers = getMarkersForUrl(store, currentLessonUrl).sort((left, right) => {
+    if (left.time !== right.time) {
+      return left.time - right.time;
     }
 
-    const savedAt = document.createElement("span");
-    savedAt.textContent = `Saved at ${formatMarkerTime(marker.time)}`;
-    meta.append(savedAt);
+    return left.createdAt - right.createdAt;
+  });
 
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "marker-delete";
-    deleteButton.textContent = "Delete";
-    deleteButton.addEventListener("click", () => {
-      deleteMarker(marker.id).catch((error: Error) => {
-        console.log("[V-Lesson Plus] Failed to delete marker:", error);
-        setStatus(`Error: ${error.message}`);
+  renderMarkersList(
+    markers,
+    elements.markersList,
+    elements.markersEmpty,
+    (marker) => {
+      jumpToMarker(marker).catch((error: Error) => {
+        setStatus(`${t("errorPrefix")}: ${error.message}`);
       });
-    });
-
-    const actions = document.createElement("div");
-    actions.className = "marker-actions";
-    actions.append(jumpButton, deleteButton);
-
-    item.append(meta, actions);
-    markersList.append(item);
-  }
+    },
+    (markerId) => {
+      deleteMarker(markerId).catch((error: Error) => {
+        setStatus(`${t("errorPrefix")}: ${error.message}`);
+      });
+    },
+    t,
+    (message) => {
+      setStatus(message);
+    },
+  );
 }
 
 async function saveMarkerAtCurrentTime(): Promise<void> {
   const context = await loadLessonContext();
 
   if (!context?.supported) {
-    setStatus("No supported video found on this page.");
+    setStatus(t("statusNoSupportedVideo"));
     return;
   }
 
   currentLessonUrl = normalizeLessonUrl(context.url);
 
-  const validatedLabel = validateMarkerLabel(markerLabelInput.value);
+  const validatedLabel = validateMarkerLabel(elements.markerLabelInput.value);
 
   if (validatedLabel === null) {
-    setStatus(
-      "Marker label can only use letters, spaces, dots, commas, and hyphens.",
-    );
+    setStatus(t("statusInvalidMarkerLabel"));
     return;
   }
 
-  const store = await getMarkerStore();
+  const store = await getMarkerStore(chrome.storage.local);
   const markers = getMarkersForUrl(store, currentLessonUrl);
   const marker: Marker = {
     id: createMarkerId(),
@@ -337,10 +226,10 @@ async function saveMarkerAtCurrentTime(): Promise<void> {
   };
 
   store[currentLessonUrl] = [...markers, marker];
-  await setMarkerStore(store);
+  await setMarkerStore(chrome.storage.local, store);
   await renderMarkersForCurrentLesson();
-  setStatus(`Saved marker at ${formatMarkerTime(marker.time)}.`);
-  markerLabelInput.value = "";
+  setStatus(t("statusSavedMarkerAt", { time: formatMarkerTime(marker.time) }));
+  elements.markerLabelInput.value = "";
 }
 
 async function deleteMarker(markerId: string): Promise<void> {
@@ -348,7 +237,7 @@ async function deleteMarker(markerId: string): Promise<void> {
     return;
   }
 
-  const store = await getMarkerStore();
+  const store = await getMarkerStore(chrome.storage.local);
   const markers = getMarkersForUrl(store, currentLessonUrl);
   const nextMarkers = markers.filter((marker) => marker.id !== markerId);
 
@@ -362,9 +251,9 @@ async function deleteMarker(markerId: string): Promise<void> {
     store[currentLessonUrl] = nextMarkers;
   }
 
-  await setMarkerStore(store);
+  await setMarkerStore(chrome.storage.local, store);
   await renderMarkersForCurrentLesson();
-  setStatus("Marker deleted.");
+  setStatus(t("statusMarkerDeleted"));
 }
 
 async function jumpToMarker(marker: Marker): Promise<void> {
@@ -372,7 +261,7 @@ async function jumpToMarker(marker: Marker): Promise<void> {
   const [tab] = tabs;
 
   if (!tab?.id) {
-    setStatus("No active tab found.");
+    setStatus(t("statusNoActiveTab"));
     return;
   }
 
@@ -382,114 +271,91 @@ async function jumpToMarker(marker: Marker): Promise<void> {
   })) as SeekToTimeResponse;
 
   if (response?.ok) {
-    setStatus(`Jumped to ${formatMarkerTime(marker.time)}.`);
+    setStatus(t("statusJumpedTo", { time: formatMarkerTime(marker.time) }));
     return;
   }
 
-  setStatus(response?.message ?? "Unable to jump to marker.");
+  setStatus(response?.message ?? t("statusUnableToJump"));
 }
 
-async function applyPlaybackRate(playbackRate: string): Promise<void> {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  const [tab] = tabs;
-
-  if (!tab?.id) {
-    console.log(
-      "[V-Lesson Plus] No active tab found while trying to set playback rate.",
-    );
-    setStatus("No active tab found.");
-    return;
-  }
-
-  const normalizedPlaybackRate = normalizePlaybackRate(playbackRate);
-
-  if (normalizedPlaybackRate === null) {
-    console.log(
-      `[V-Lesson Plus] Invalid playback rate selected: ${playbackRate}.`,
-    );
-    setStatus("Invalid playback rate selected.");
-    return;
-  }
-
+elements.playbackRateSelect.addEventListener("change", () => {
   console.log(
-    `[V-Lesson Plus] Sending playback rate ${normalizedPlaybackRate} to tab ${tab.id}.`,
+    `[V-Lesson Plus] Select changed to ${elements.playbackRateSelect.value}.`,
   );
 
-  await setStoredPlaybackRate(playbackRate);
+  updateSpeedWarningBanner(elements.playbackRateSelect.value);
 
-  try {
-    const response = (await chrome.tabs.sendMessage(tab.id, {
-      type: "SET_PLAYBACK_RATE",
-      playbackRate: normalizedPlaybackRate,
-    })) as SetPlaybackRateResponse;
-
-    console.log("[V-Lesson Plus] Content script response:", response);
-    setStatus(response?.message ?? "Unable to apply playback rate.");
-  } catch (error) {
-    console.log("[V-Lesson Plus] Failed to send playback rate message:", error);
-    setStatus(
-      "This page is not ready for the extension yet. Reload the page and try again.",
-    );
-  }
-}
-
-playbackRateSelect.addEventListener("change", () => {
-  console.log(`[V-Lesson Plus] Select changed to ${playbackRateSelect.value}.`);
-
-  // Show/hide warning banner for 2x speed
-  if (playbackRateSelect.value === "2") {
-    speedWarningBanner.classList.remove("hidden");
-  } else {
-    speedWarningBanner.classList.add("hidden");
-  }
-
-  applyPlaybackRate(playbackRateSelect.value).catch((error: Error) => {
-    console.log(
-      "[V-Lesson Plus] Unexpected error while applying playback rate:",
-      error,
-    );
-    setStatus(`Error: ${error.message}`);
-  });
+  applyPlaybackRateToActiveTab(elements.playbackRateSelect.value, setStatus, t).catch(
+    (error: Error) => {
+      console.log(
+        "[V-Lesson Plus] Unexpected error while applying playback rate:",
+        error,
+      );
+      setStatus(`${t("errorPrefix")}: ${error.message}`);
+    },
+  );
 });
 
-saveMarkerButton.addEventListener("click", () => {
+elements.saveMarkerButton.addEventListener("click", () => {
   saveMarkerAtCurrentTime().catch((error: Error) => {
     console.log("[V-Lesson Plus] Unexpected error while saving marker:", error);
-    setStatus(`Error: ${error.message}`);
+    setStatus(`${t("errorPrefix")}: ${error.message}`);
   });
 });
+
+elements.languageToggleButton.addEventListener("click", () => {
+  const nextLanguage: Language = currentLanguage === "it" ? "en" : "it";
+  currentLanguage = nextLanguage;
+
+  applyTranslationsToDom(document, currentLanguage, elements.languageToggleButton);
+
+  setStoredLanguage(chrome.storage.local, nextLanguage).catch((error: Error) => {
+    console.log("[V-Lesson Plus] Failed to store language selection:", error);
+  });
+
+  renderMarkersForCurrentLesson().catch((error: Error) => {
+    console.log("[V-Lesson Plus] Failed to rerender markers after language switch:", error);
+  });
+});
+
+async function initializePopup(): Promise<void> {
+  currentLanguage = await getStoredLanguage(chrome.storage.local, navigator.language);
+  applyTranslationsToDom(document, currentLanguage, elements.languageToggleButton);
+
+  try {
+    const storedPlaybackRate = await getStoredPlaybackRate(chrome.storage.local);
+    elements.playbackRateSelect.value = storedPlaybackRate;
+    updateSpeedWarningBanner(storedPlaybackRate);
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
+  }
+
+  try {
+    const context = await loadLessonContext();
+    if (!context?.supported) {
+      showNotSupported();
+      return;
+    }
+
+    showSupported();
+    currentLessonUrl = normalizeLessonUrl(context.url);
+    renderLessonDetails(context.lessonDetails, {
+      lessonCourseName: elements.lessonCourseName,
+      lessonCourseId: elements.lessonCourseId,
+      lessonProfessor: elements.lessonProfessor,
+      lessonNumber: elements.lessonNumber,
+      lessonName: elements.lessonName,
+    });
+    await renderMarkersForCurrentLesson();
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to initialize popup:", error);
+    showNotSupported();
+  }
+}
 
 console.log("[V-Lesson Plus] Popup loaded.");
 
-getStoredPlaybackRate()
-  .then((storedPlaybackRate) => {
-    playbackRateSelect.value = storedPlaybackRate;
-
-    // Show warning banner if 2x is stored
-    if (storedPlaybackRate === "2") {
-      speedWarningBanner.classList.remove("hidden");
-    } else {
-      speedWarningBanner.classList.add("hidden");
-    }
-  })
-  .catch((error: Error) => {
-    console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
-  })
-  .finally(() => {
-    loadLessonContext()
-      .then((context) => {
-        if (!context?.supported) {
-          showNotSupported();
-          return;
-        }
-
-        showSupported();
-        currentLessonUrl = normalizeLessonUrl(context.url);
-        renderLessonDetails(context.lessonDetails);
-        return renderMarkersForCurrentLesson();
-      })
-      .catch((error: Error) => {
-        console.log("[V-Lesson Plus] Failed to initialize popup:", error);
-        showNotSupported();
-      });
-  });
+initializePopup().catch((error: Error) => {
+  console.log("[V-Lesson Plus] Unexpected popup initialization error:", error);
+  showNotSupported();
+});

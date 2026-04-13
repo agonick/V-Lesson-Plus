@@ -12,10 +12,33 @@ body {
   box-sizing: border-box;
 }
 
-h1 {
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin: 0 0 12px;
+}
+
+h1 {
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
+}
+
+.lang-toggle {
+  margin: 0;
+  padding: 4px 8px;
+  min-width: 42px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lang-toggle:hover {
+  background: #d1d5db;
 }
 
 .extension-layout {
@@ -216,6 +239,20 @@ button {
 
 button:hover {
   background: #1e40af;
+}
+
+button.lang-toggle {
+  padding: 4px 8px;
+  min-width: 42px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+button.lang-toggle:hover {
+  background: #d1d5db;
 }
 
 .speed-warning {

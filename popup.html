@@ -8,45 +8,50 @@
   </head>
   <body>
     <main>
-      <h1>V-Lesson Plus</h1>
+      <header class="popup-header">
+        <h1 data-i18n="appTitle">V-Lesson Plus</h1>
+        <button id="languageToggleButton" class="lang-toggle" type="button">
+          EN
+        </button>
+      </header>
 
       <!-- Supported section -->
       <div id="supportedSection" class="hidden extension-layout">
         <section class="panel lesson-details-panel">
-          <h2>Lesson Details</h2>
+          <h2 data-i18n="lessonDetailsTitle">Lesson Details</h2>
           <dl class="lesson-details-list">
             <div class="lesson-details-row">
-              <dt>Course</dt>
+              <dt data-i18n="detailCourse">Course</dt>
               <dd id="lessonCourseName">-</dd>
             </div>
             <div class="lesson-details-row">
-              <dt>Course ID</dt>
+              <dt data-i18n="detailCourseId">Course ID</dt>
               <dd id="lessonCourseId">-</dd>
             </div>
             <div class="lesson-details-row">
-              <dt>Professor</dt>
+              <dt data-i18n="detailProfessor">Professor</dt>
               <dd id="lessonProfessor">-</dd>
             </div>
             <div class="lesson-details-row">
-              <dt>Lesson Number</dt>
+              <dt data-i18n="detailLessonNumber">Lesson Number</dt>
               <dd id="lessonNumber">-</dd>
             </div>
             <div class="lesson-details-row">
-              <dt>Lesson Name</dt>
+              <dt data-i18n="detailLessonName">Lesson Name</dt>
               <dd id="lessonName">-</dd>
             </div>
           </dl>
         </section>
 
         <section class="panel playback-panel">
-          <h2>Playback</h2>
-          <p class="message">
+          <h2 data-i18n="playbackTitle">Playback</h2>
+          <p class="message" data-i18n="playbackDescription">
             Choose a speed and the extension will apply it to the active
             Uninettuno video.
           </p>
 
           <label class="field" for="playbackRateSelect">
-            <span>Speed</span>
+            <span data-i18n="speedLabel">Speed</span>
             <select id="playbackRateSelect">
               <option value="1" selected>1</option>
               <option value="1.25">1,25</option>
@@ -56,35 +61,48 @@
           </label>
 
           <div id="speedWarningBanner" class="speed-warning hidden">
-            <strong>⚠️ Warning:</strong> 2x speed may result in incomplete
-            tracking. Use 1.25x or 1.5x for safety. Always verify your tracking
-            status.
+            <strong data-i18n="speedWarningTitle">Warning:</strong>
+            <span data-i18n="speedWarningBody">
+              2x speed may result in incomplete tracking. Use 1.25x or 1.5x for
+              safety. Always verify your tracking status.
+            </span>
           </div>
         </section>
 
         <section class="panel marker-panel">
           <div class="marker-panel-header">
-            <h2>Markers</h2>
-            <button id="saveMarkerButton" type="button">Save marker</button>
+            <h2 data-i18n="markersTitle">Markers</h2>
+            <button
+              id="saveMarkerButton"
+              type="button"
+              data-i18n="saveMarkerButton"
+            >
+              Save marker
+            </button>
           </div>
 
-          <p class="message marker-message">
+          <p class="message marker-message" data-i18n="markersDescription">
             Save the current lesson time and jump back to it later.
           </p>
 
           <label class="field" for="markerLabelInput">
-            <span>Marker label</span>
+            <span data-i18n="markerLabel">Marker label</span>
             <input
               id="markerLabelInput"
               type="text"
               maxlength="80"
               autocomplete="off"
               spellcheck="false"
+              data-i18n-placeholder="markerPlaceholder"
               placeholder="Optional label"
             />
           </label>
 
-          <p id="markersEmpty" class="status marker-empty">
+          <p
+            id="markersEmpty"
+            class="status marker-empty"
+            data-i18n="markersEmpty"
+          >
             No markers saved for this lesson yet.
           </p>
 
@@ -96,7 +114,9 @@
 
       <!-- Not supported section -->
       <div id="notSupportedSection" class="hidden">
-        <p class="message">This extension is not supported for this page.</p>
+        <p class="message" data-i18n="notSupportedMessage">
+          This extension is not supported for this page.
+        </p>
       </div>
     </main>
 
