@@ -1,159 +1,461 @@
-import { normalizePlaybackRate } from "./logic";
+import {
+  formatMarkerTime,
+  normalizeLessonUrl,
+  validateMarkerLabel,
+  type Marker,
+} from "./logic";
+import {
+  applyTranslationsToDom,
+  getStoredLanguage,
+  setStoredLanguage,
+  translate,
+  type Language,
+} from "./popup/i18n";
+import { renderLessonDetails } from "./popup/lesson-details";
+import {
+  createMarkerId,
+  getMarkerStore,
+  getMarkersForUrl,
+  renderMarkersList,
+  setMarkerStore,
+} from "./popup/markers";
+import {
+  applyPlaybackRateToActiveTab,
+  getStoredPlaybackRate,
+} from "./popup/playback";
+import type {
+  LessonContextResponse,
+  PopupElements,
+  SeekToTimeResponse,
+} from "./popup/types";
 
-interface PlaybackRateSelectElement extends HTMLSelectElement {}
-interface StatusElement extends HTMLElement {}
+const AUTOPLAY_NEXT_STORAGE_KEY = "vlp_autoplayNextLesson";
+const DEV_MODE_QUERY_PARAM = "devMode";
 
-const playbackRateSelect = document.getElementById(
-  "playbackRateSelect",
-) as PlaybackRateSelectElement;
-const status = document.getElementById("status") as StatusElement;
-const supportedSection = document.getElementById(
-  "supportedSection",
-) as HTMLDivElement;
-const notSupportedSection = document.getElementById(
-  "notSupportedSection",
-) as HTMLDivElement;
-
-if (
-  !playbackRateSelect ||
-  !status ||
-  !supportedSection ||
-  !notSupportedSection
-) {
-  throw new Error("Required UI elements not found in popup.html");
-}
-
-interface CheckVideoElementResponse {
-  supported: boolean;
-}
-
-interface SetPlaybackRateResponse {
-  ok: boolean;
-  message: string;
-}
-
-const PLAYBACK_RATE_STORAGE_KEY = "vlp_lastPlaybackRate";
-const DEFAULT_PLAYBACK_RATE = "1";
-
-async function getStoredPlaybackRate(): Promise<string> {
-  const result = await chrome.storage.local.get(PLAYBACK_RATE_STORAGE_KEY);
-  const storedPlaybackRate = result[PLAYBACK_RATE_STORAGE_KEY];
-
-  if (typeof storedPlaybackRate !== "string") {
-    return DEFAULT_PLAYBACK_RATE;
+function isDevModeEnabled(search: string): boolean {
+  const value = new URLSearchParams(search).get(DEV_MODE_QUERY_PARAM);
+  if (!value) {
+    return false;
   }
 
-  return storedPlaybackRate;
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
 }
 
-async function setStoredPlaybackRate(playbackRate: string): Promise<void> {
-  await chrome.storage.local.set({ [PLAYBACK_RATE_STORAGE_KEY]: playbackRate });
+const devModeEnabled = isDevModeEnabled(window.location.search);
+
+function getPopupElements(): PopupElements {
+  const playbackRateSelect = document.getElementById(
+    "playbackRateSelect",
+  ) as HTMLSelectElement | null;
+  const status = document.getElementById("status") as HTMLElement | null;
+  const supportedSection = document.getElementById(
+    "supportedSection",
+  ) as HTMLDivElement | null;
+  const notSupportedSection = document.getElementById(
+    "notSupportedSection",
+  ) as HTMLDivElement | null;
+  const lessonDetailsPanel = document.getElementById(
+    "lessonDetailsPanel",
+  ) as HTMLElement | null;
+  const saveMarkerButton = document.getElementById(
+    "saveMarkerButton",
+  ) as HTMLButtonElement | null;
+  const markerLabelInput = document.getElementById(
+    "markerLabelInput",
+  ) as HTMLInputElement | null;
+  const markersList = document.getElementById(
+    "markersList",
+  ) as HTMLUListElement | null;
+  const markersEmpty = document.getElementById(
+    "markersEmpty",
+  ) as HTMLElement | null;
+  const lessonCourseName = document.getElementById(
+    "lessonCourseName",
+  ) as HTMLElement | null;
+  const lessonCourseId = document.getElementById(
+    "lessonCourseId",
+  ) as HTMLElement | null;
+  const lessonProfessor = document.getElementById(
+    "lessonProfessor",
+  ) as HTMLElement | null;
+  const lessonNumber = document.getElementById(
+    "lessonNumber",
+  ) as HTMLElement | null;
+  const lessonName = document.getElementById(
+    "lessonName",
+  ) as HTMLElement | null;
+  const autoplayNextToggle = document.getElementById(
+    "autoplayNextToggle",
+  ) as HTMLInputElement | null;
+  const speedWarningBanner = document.getElementById(
+    "speedWarningBanner",
+  ) as HTMLElement | null;
+  const languageToggleButton = document.getElementById(
+    "languageToggleButton",
+  ) as HTMLButtonElement | null;
+
+  if (
+    !playbackRateSelect ||
+    !status ||
+    !supportedSection ||
+    !notSupportedSection ||
+    !lessonDetailsPanel ||
+    !saveMarkerButton ||
+    !markerLabelInput ||
+    !markersList ||
+    !markersEmpty ||
+    !lessonCourseName ||
+    !lessonCourseId ||
+    !lessonProfessor ||
+    !lessonNumber ||
+    !lessonName ||
+    !autoplayNextToggle ||
+    !speedWarningBanner ||
+    !languageToggleButton
+  ) {
+    throw new Error("Required UI elements not found in popup.html");
+  }
+
+  return {
+    playbackRateSelect,
+    status,
+    supportedSection,
+    notSupportedSection,
+    lessonDetailsPanel,
+    saveMarkerButton,
+    markerLabelInput,
+    markersList,
+    markersEmpty,
+    lessonCourseName,
+    lessonCourseId,
+    lessonProfessor,
+    lessonNumber,
+    lessonName,
+    autoplayNextToggle,
+    speedWarningBanner,
+    languageToggleButton,
+  };
 }
 
-async function checkVideoSupport(): Promise<void> {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  const [tab] = tabs;
+const elements = getPopupElements();
+let currentLessonUrl = "";
+let currentLanguage: Language = "it";
 
-  if (!tab?.id) {
-    console.log(
-      "[V-Lesson Plus] No active tab found while checking video support.",
-    );
-    showNotSupported();
+function t(
+  key: string,
+  replacements?: Record<string, string | number>,
+): string {
+  return translate(currentLanguage, key, replacements);
+}
+
+function setStatus(message: string): void {
+  elements.status.textContent = message;
+  if (message.trim() === "") {
+    elements.status.classList.add("hidden");
     return;
   }
 
-  try {
-    const response = (await chrome.tabs.sendMessage(tab.id, {
-      type: "CHECK_VIDEO_ELEMENT",
-    })) as CheckVideoElementResponse;
-
-    if (response?.supported) {
-      showSupported();
-    } else {
-      showNotSupported();
-    }
-  } catch (error) {
-    console.log(
-      "[V-Lesson Plus] Failed to check video element support:",
-      error,
-    );
-    showNotSupported();
-  }
+  elements.status.classList.remove("hidden");
 }
 
 function showSupported(): void {
-  supportedSection.classList.remove("hidden");
-  notSupportedSection.classList.add("hidden");
+  elements.supportedSection.classList.remove("hidden");
+  elements.notSupportedSection.classList.add("hidden");
 }
 
 function showNotSupported(): void {
-  supportedSection.classList.add("hidden");
-  notSupportedSection.classList.remove("hidden");
+  elements.supportedSection.classList.add("hidden");
+  elements.notSupportedSection.classList.remove("hidden");
 }
 
-async function applyPlaybackRate(playbackRate: string): Promise<void> {
+function updateSpeedWarningBanner(playbackRate: string): void {
+  if (playbackRate === "2") {
+    elements.speedWarningBanner.classList.remove("hidden");
+  } else {
+    elements.speedWarningBanner.classList.add("hidden");
+  }
+}
+
+async function getStoredAutoplayNextEnabled(
+  storage: chrome.storage.StorageArea,
+): Promise<boolean> {
+  const result = await storage.get(AUTOPLAY_NEXT_STORAGE_KEY);
+  return result[AUTOPLAY_NEXT_STORAGE_KEY] === true;
+}
+
+async function setStoredAutoplayNextEnabled(
+  storage: chrome.storage.StorageArea,
+  enabled: boolean,
+): Promise<void> {
+  await storage.set({ [AUTOPLAY_NEXT_STORAGE_KEY]: enabled });
+}
+
+async function loadLessonContext(): Promise<LessonContextResponse | null> {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const [tab] = tabs;
 
   if (!tab?.id) {
     console.log(
-      "[V-Lesson Plus] No active tab found while trying to set playback rate.",
+      "[V-Lesson Plus] No active tab found while loading lesson context.",
     );
-    status.textContent = "No active tab found.";
-    return;
+    return null;
   }
-
-  const normalizedPlaybackRate = normalizePlaybackRate(playbackRate);
-
-  if (normalizedPlaybackRate === null) {
-    console.log(
-      `[V-Lesson Plus] Invalid playback rate selected: ${playbackRate}.`,
-    );
-    status.textContent = "Invalid playback rate selected.";
-    return;
-  }
-
-  console.log(
-    `[V-Lesson Plus] Sending playback rate ${normalizedPlaybackRate} to tab ${tab.id}.`,
-  );
-
-  await setStoredPlaybackRate(playbackRate);
 
   try {
     const response = (await chrome.tabs.sendMessage(tab.id, {
-      type: "SET_PLAYBACK_RATE",
-      playbackRate: normalizedPlaybackRate,
-    })) as SetPlaybackRateResponse;
+      type: "GET_LESSON_CONTEXT",
+    })) as LessonContextResponse;
 
-    console.log("[V-Lesson Plus] Content script response:", response);
-    status.textContent = response?.message ?? "Unable to apply playback rate.";
+    return response;
   } catch (error) {
-    console.log("[V-Lesson Plus] Failed to send playback rate message:", error);
-    status.textContent =
-      "This page is not ready for the extension yet. Reload the page and try again.";
+    console.log("[V-Lesson Plus] Failed to load lesson context:", error);
+    return null;
   }
 }
 
-playbackRateSelect.addEventListener("change", () => {
-  console.log(`[V-Lesson Plus] Select changed to ${playbackRateSelect.value}.`);
-  applyPlaybackRate(playbackRateSelect.value).catch((error: Error) => {
+async function renderMarkersForCurrentLesson(): Promise<void> {
+  if (!currentLessonUrl) {
+    elements.markersList.replaceChildren();
+    elements.markersEmpty.classList.remove("hidden");
+    return;
+  }
+
+  const store = await getMarkerStore(chrome.storage.local);
+  const markers = getMarkersForUrl(store, currentLessonUrl).sort(
+    (left, right) => {
+      if (left.time !== right.time) {
+        return left.time - right.time;
+      }
+
+      return left.createdAt - right.createdAt;
+    },
+  );
+
+  renderMarkersList(
+    markers,
+    elements.markersList,
+    elements.markersEmpty,
+    (marker) => {
+      jumpToMarker(marker).catch((error: Error) => {
+        setStatus(`${t("errorPrefix")}: ${error.message}`);
+      });
+    },
+    (markerId) => {
+      deleteMarker(markerId).catch((error: Error) => {
+        setStatus(`${t("errorPrefix")}: ${error.message}`);
+      });
+    },
+    t,
+    (message) => {
+      setStatus(message);
+    },
+  );
+}
+
+async function saveMarkerAtCurrentTime(): Promise<void> {
+  const context = await loadLessonContext();
+
+  if (!context?.supported) {
+    setStatus(t("statusNoSupportedVideo"));
+    return;
+  }
+
+  currentLessonUrl = normalizeLessonUrl(context.url);
+
+  const validatedLabel = validateMarkerLabel(elements.markerLabelInput.value);
+
+  if (validatedLabel === null) {
+    setStatus(t("statusInvalidMarkerLabel"));
+    return;
+  }
+
+  const store = await getMarkerStore(chrome.storage.local);
+  const markers = getMarkersForUrl(store, currentLessonUrl);
+  const marker: Marker = {
+    id: createMarkerId(),
+    time: context.currentTime,
+    createdAt: Date.now(),
+    ...(validatedLabel ? { label: validatedLabel } : {}),
+  };
+
+  store[currentLessonUrl] = [...markers, marker];
+  await setMarkerStore(chrome.storage.local, store);
+  await renderMarkersForCurrentLesson();
+  setStatus(t("statusSavedMarkerAt", { time: formatMarkerTime(marker.time) }));
+  elements.markerLabelInput.value = "";
+}
+
+async function deleteMarker(markerId: string): Promise<void> {
+  if (!currentLessonUrl) {
+    return;
+  }
+
+  const store = await getMarkerStore(chrome.storage.local);
+  const markers = getMarkersForUrl(store, currentLessonUrl);
+  const nextMarkers = markers.filter((marker) => marker.id !== markerId);
+
+  if (nextMarkers.length === markers.length) {
+    return;
+  }
+
+  if (nextMarkers.length === 0) {
+    delete store[currentLessonUrl];
+  } else {
+    store[currentLessonUrl] = nextMarkers;
+  }
+
+  await setMarkerStore(chrome.storage.local, store);
+  await renderMarkersForCurrentLesson();
+  setStatus(t("statusMarkerDeleted"));
+}
+
+async function jumpToMarker(marker: Marker): Promise<void> {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = tabs;
+
+  if (!tab?.id) {
+    setStatus(t("statusNoActiveTab"));
+    return;
+  }
+
+  const response = (await chrome.tabs.sendMessage(tab.id, {
+    type: "SEEK_TO_TIME",
+    time: marker.time,
+  })) as SeekToTimeResponse;
+
+  if (response?.ok) {
+    setStatus(t("statusJumpedTo", { time: formatMarkerTime(marker.time) }));
+    return;
+  }
+
+  setStatus(response?.message ?? t("statusUnableToJump"));
+}
+
+elements.playbackRateSelect.addEventListener("change", () => {
+  console.log(
+    `[V-Lesson Plus] Select changed to ${elements.playbackRateSelect.value}.`,
+  );
+
+  updateSpeedWarningBanner(elements.playbackRateSelect.value);
+
+  applyPlaybackRateToActiveTab(
+    elements.playbackRateSelect.value,
+    setStatus,
+    t,
+  ).catch((error: Error) => {
     console.log(
       "[V-Lesson Plus] Unexpected error while applying playback rate:",
       error,
     );
-    status.textContent = `Error: ${error.message}`;
+    setStatus(`${t("errorPrefix")}: ${error.message}`);
   });
 });
 
+elements.saveMarkerButton.addEventListener("click", () => {
+  saveMarkerAtCurrentTime().catch((error: Error) => {
+    console.log("[V-Lesson Plus] Unexpected error while saving marker:", error);
+    setStatus(`${t("errorPrefix")}: ${error.message}`);
+  });
+});
+
+elements.languageToggleButton.addEventListener("click", () => {
+  const nextLanguage: Language = currentLanguage === "it" ? "en" : "it";
+  currentLanguage = nextLanguage;
+
+  applyTranslationsToDom(
+    document,
+    currentLanguage,
+    elements.languageToggleButton,
+  );
+
+  setStoredLanguage(chrome.storage.local, nextLanguage).catch(
+    (error: Error) => {
+      console.log("[V-Lesson Plus] Failed to store language selection:", error);
+    },
+  );
+
+  renderMarkersForCurrentLesson().catch((error: Error) => {
+    console.log(
+      "[V-Lesson Plus] Failed to rerender markers after language switch:",
+      error,
+    );
+  });
+});
+
+elements.autoplayNextToggle.addEventListener("change", () => {
+  const enabled = elements.autoplayNextToggle.checked;
+
+  setStoredAutoplayNextEnabled(chrome.storage.local, enabled)
+    .then(() => {
+      setStatus(
+        t(enabled ? "statusAutoplayEnabled" : "statusAutoplayDisabled"),
+      );
+    })
+    .catch((error: Error) => {
+      console.log("[V-Lesson Plus] Failed to store autoplay setting:", error);
+      setStatus(`${t("errorPrefix")}: ${error.message}`);
+    });
+});
+
+async function initializePopup(): Promise<void> {
+  currentLanguage = await getStoredLanguage(
+    chrome.storage.local,
+    navigator.language,
+  );
+  applyTranslationsToDom(
+    document,
+    currentLanguage,
+    elements.languageToggleButton,
+  );
+
+  try {
+    const storedPlaybackRate = await getStoredPlaybackRate(
+      chrome.storage.local,
+    );
+    elements.playbackRateSelect.value = storedPlaybackRate;
+    updateSpeedWarningBanner(storedPlaybackRate);
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
+  }
+
+  try {
+    const autoplayNextEnabled = await getStoredAutoplayNextEnabled(
+      chrome.storage.local,
+    );
+    elements.autoplayNextToggle.checked = autoplayNextEnabled;
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to load autoplay setting:", error);
+  }
+
+  try {
+    const context = await loadLessonContext();
+    if (!context?.supported) {
+      showNotSupported();
+      return;
+    }
+
+    showSupported();
+    elements.lessonDetailsPanel.classList.toggle("hidden", !devModeEnabled);
+    currentLessonUrl = normalizeLessonUrl(context.url);
+    if (devModeEnabled) {
+      renderLessonDetails(context.lessonDetails, {
+        lessonCourseName: elements.lessonCourseName,
+        lessonCourseId: elements.lessonCourseId,
+        lessonProfessor: elements.lessonProfessor,
+        lessonNumber: elements.lessonNumber,
+        lessonName: elements.lessonName,
+      });
+    }
+    await renderMarkersForCurrentLesson();
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to initialize popup:", error);
+    showNotSupported();
+  }
+}
+
 console.log("[V-Lesson Plus] Popup loaded.");
 
-getStoredPlaybackRate()
-  .then((storedPlaybackRate) => {
-    playbackRateSelect.value = storedPlaybackRate;
-  })
-  .catch((error: Error) => {
-    console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
-  })
-  .finally(() => {
-    checkVideoSupport();
-  });
+initializePopup().catch((error: Error) => {
+  console.log("[V-Lesson Plus] Unexpected popup initialization error:", error);
+  showNotSupported();
+});
