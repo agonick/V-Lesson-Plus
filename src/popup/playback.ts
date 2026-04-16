@@ -54,8 +54,6 @@ export async function applyPlaybackRateToActiveTab(
     `[V-Lesson Plus] Sending playback rate ${normalizedPlaybackRate} to tab ${tab.id}.`,
   );
 
-  await setStoredPlaybackRate(chrome.storage.local, playbackRate);
-
   try {
     const response = (await chrome.tabs.sendMessage(tab.id, {
       type: "SET_PLAYBACK_RATE",
@@ -64,6 +62,14 @@ export async function applyPlaybackRateToActiveTab(
 
     console.log("[V-Lesson Plus] Content script response:", response);
     setStatus(response?.message ?? t("statusUnableApplyPlaybackRate"));
+
+    // ISSUE #2 FIX: Only persist to storage if content script succeeded
+    if (response?.ok === true) {
+      await setStoredPlaybackRate(chrome.storage.local, playbackRate);
+      console.log(
+        `[V-Lesson Plus] Playback rate ${playbackRate} persisted to storage.`,
+      );
+    }
   } catch (error) {
     console.log("[V-Lesson Plus] Failed to send playback rate message:", error);
     setStatus(t("statusPageNotReady"));

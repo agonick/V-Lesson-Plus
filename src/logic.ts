@@ -35,6 +35,20 @@ export function getFirstVjsTechElement(
   return (elements[0] as HTMLMediaElement) ?? null;
 }
 
+/**
+ * Ensure by fetching the video element every time (not cached).
+ * This is the preferred way to get the video reference in dynamic contexts
+ * where the player may be initialized asynchronously.
+ *
+ * @param documentLike - Document context (real or test double)
+ * @returns The video element or null if not found
+ */
+export function ensureVideoElement(
+  documentLike: Document | DocumentLike,
+): HTMLMediaElement | null {
+  return getFirstVjsTechElement(documentLike);
+}
+
 export function normalizeLessonUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);

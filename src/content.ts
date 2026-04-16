@@ -1,4 +1,5 @@
 import {
+  ensureVideoElement,
   getFirstVjsTechElement,
   applyPlaybackRateToDocument,
   formatMarkerTime,
@@ -248,7 +249,7 @@ async function loadAutoplayNextSetting(): Promise<void> {
   }
 }
 
-const video = getVideoElement();
+const video = ensureVideoElement(document);
 
 if (video) {
   console.log("[V-Lesson Plus] Found .vjs-tech element on this page:", video);
@@ -268,11 +269,14 @@ if (video) {
 
       if (typeof storedRate === "string") {
         const normalizedRate = normalizePlaybackRate(storedRate);
-        if (normalizedRate !== null && video) {
-          (video as any).playbackRate = normalizedRate;
+        if (normalizedRate !== null) {
+          const currentVideo = ensureVideoElement(document);
+          if (currentVideo) {
+            (currentVideo as any).playbackRate = normalizedRate;
           console.log(
             `[V-Lesson Plus] Applied stored playback rate ${normalizedRate}x on page load.`,
           );
+          }
         }
       }
     } catch (error) {
@@ -297,8 +301,9 @@ if (video) {
   async function setupTimelineMarkers(): Promise<void> {
     const normalizedUrl = normalizeLessonUrl(window.location.href);
     const markers = await getStoredMarkersForUrl(normalizedUrl);
-    if (video) {
-      renderTimelineMarkers(document, video, markers);
+    const currentVideo = ensureVideoElement(document);
+    if (currentVideo) {
+      renderTimelineMarkers(document, currentVideo, markers);
     }
   }
 
@@ -348,12 +353,13 @@ chrome.runtime.onMessage.addListener(
     sendResponse: (response?: any) => void,
   ) => {
     if (message?.type === "CHECK_VIDEO_ELEMENT") {
-      sendResponse({ supported: video !== null });
+      const currentVideo = ensureVideoElement(document);
+      sendResponse({ supported: currentVideo !== null });
       return;
     }
 
     if (message?.type === "GET_LESSON_CONTEXT") {
-      const currentVideo = getVideoElement();
+      const currentVideo = ensureVideoElement(document);
       const currentUrl = window.location.href;
 
       sendResponse({
@@ -370,7 +376,7 @@ chrome.runtime.onMessage.addListener(
         return;
       }
 
-      const currentVideo = getVideoElement();
+      const currentVideo = ensureVideoElement(document);
 
       if (!currentVideo) {
         console.log(
@@ -393,7 +399,8 @@ chrome.runtime.onMessage.addListener(
       return;
     }
 
-    if (!video) {
+    const currentVideo = ensureVideoElement(document);
+    if (!currentVideo) {
       console.log(
         "[V-Lesson Plus] SET_PLAYBACK_RATE received, but no .vjs-tech element was found.",
       );
@@ -408,7 +415,7 @@ chrome.runtime.onMessage.addListener(
     const result = applyPlaybackRateToDocument(document, message.playbackRate);
     console.log(
       `[V-Lesson Plus] Playback rate set to ${message.playbackRate}.`,
-      video,
+      currentVideo,
     );
     if (result.ok) {
       showToast(`Speed ${message.playbackRate}x`);
