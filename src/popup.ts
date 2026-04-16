@@ -29,6 +29,8 @@ import type {
   SeekToTimeResponse,
 } from "./popup/types";
 
+const AUTOPLAY_NEXT_STORAGE_KEY = "vlp_autoplayNextLesson";
+
 function getPopupElements(): PopupElements {
   const playbackRateSelect = document.getElementById(
     "playbackRateSelect",
@@ -67,6 +69,9 @@ function getPopupElements(): PopupElements {
   const lessonName = document.getElementById(
     "lessonName",
   ) as HTMLElement | null;
+  const autoplayNextToggle = document.getElementById(
+    "autoplayNextToggle",
+  ) as HTMLInputElement | null;
   const speedWarningBanner = document.getElementById(
     "speedWarningBanner",
   ) as HTMLElement | null;
@@ -88,6 +93,7 @@ function getPopupElements(): PopupElements {
     !lessonProfessor ||
     !lessonNumber ||
     !lessonName ||
+    !autoplayNextToggle ||
     !speedWarningBanner ||
     !languageToggleButton
   ) {
@@ -108,6 +114,7 @@ function getPopupElements(): PopupElements {
     lessonProfessor,
     lessonNumber,
     lessonName,
+    autoplayNextToggle,
     speedWarningBanner,
     languageToggleButton,
   };
@@ -150,6 +157,20 @@ function updateSpeedWarningBanner(playbackRate: string): void {
   } else {
     elements.speedWarningBanner.classList.add("hidden");
   }
+}
+
+async function getStoredAutoplayNextEnabled(
+  storage: chrome.storage.StorageArea,
+): Promise<boolean> {
+  const result = await storage.get(AUTOPLAY_NEXT_STORAGE_KEY);
+  return result[AUTOPLAY_NEXT_STORAGE_KEY] === true;
+}
+
+async function setStoredAutoplayNextEnabled(
+  storage: chrome.storage.StorageArea,
+  enabled: boolean,
+): Promise<void> {
+  await storage.set({ [AUTOPLAY_NEXT_STORAGE_KEY]: enabled });
 }
 
 async function loadLessonContext(): Promise<LessonContextResponse | null> {
@@ -344,6 +365,21 @@ elements.languageToggleButton.addEventListener("click", () => {
   });
 });
 
+elements.autoplayNextToggle.addEventListener("change", () => {
+  const enabled = elements.autoplayNextToggle.checked;
+
+  setStoredAutoplayNextEnabled(chrome.storage.local, enabled)
+    .then(() => {
+      setStatus(
+        t(enabled ? "statusAutoplayEnabled" : "statusAutoplayDisabled"),
+      );
+    })
+    .catch((error: Error) => {
+      console.log("[V-Lesson Plus] Failed to store autoplay setting:", error);
+      setStatus(`${t("errorPrefix")}: ${error.message}`);
+    });
+});
+
 async function initializePopup(): Promise<void> {
   currentLanguage = await getStoredLanguage(
     chrome.storage.local,
@@ -363,6 +399,15 @@ async function initializePopup(): Promise<void> {
     updateSpeedWarningBanner(storedPlaybackRate);
   } catch (error) {
     console.log("[V-Lesson Plus] Failed to load stored playback rate:", error);
+  }
+
+  try {
+    const autoplayNextEnabled = await getStoredAutoplayNextEnabled(
+      chrome.storage.local,
+    );
+    elements.autoplayNextToggle.checked = autoplayNextEnabled;
+  } catch (error) {
+    console.log("[V-Lesson Plus] Failed to load autoplay setting:", error);
   }
 
   try {

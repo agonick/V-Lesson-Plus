@@ -93,6 +93,65 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.lesson-details-toggle-row {
+  align-items: center;
+}
+
+.lesson-details-toggle-row dd {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 999px;
+  transition: background 140ms ease-in-out;
+  cursor: pointer;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+  transition: transform 140ms ease-in-out;
+}
+
+.switch input:checked + .switch-slider {
+  background: #059669;
+}
+
+.switch input:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+.switch input:focus-visible + .switch-slider {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .message {
   margin: 0;
   font-size: 13px;

@@ -39,6 +39,7 @@ export interface PopupElements {
   lessonProfessor: HTMLElement;
   lessonNumber: HTMLElement;
   lessonName: HTMLElement;
+  autoplayNextToggle: HTMLInputElement;
   speedWarningBanner: HTMLElement;
   languageToggleButton: HTMLButtonElement;
 }

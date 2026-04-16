@@ -11,6 +11,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     detailProfessor: "Docente",
     detailLessonNumber: "Numero lezione",
     detailLessonName: "Nome lezione",
+    detailAutoplayNext: "Autoplay successiva",
     playbackTitle: "Riproduzione",
     playbackDescription:
       "Scegli una velocita e l'estensione la applichera al video Uninettuno attivo.",
@@ -39,6 +40,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     statusUnableToJump: "Impossibile spostarsi al marker.",
     statusInvalidPlaybackRate: "Velocita selezionata non valida.",
     statusUnableApplyPlaybackRate: "Impossibile applicare la velocita.",
+    statusAutoplayEnabled:
+      "Autoplay attivo: la prossima lezione partira alla fine del video.",
+    statusAutoplayDisabled: "Autoplay disattivato.",
     statusPageNotReady:
       "Questa pagina non e pronta per l'estensione. Ricarica la pagina e riprova.",
     markerSavedAt: "Salvato a {time}",
@@ -52,6 +56,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     detailProfessor: "Professor",
     detailLessonNumber: "Lesson Number",
     detailLessonName: "Lesson Name",
+    detailAutoplayNext: "Autoplay Next",
     playbackTitle: "Playback",
     playbackDescription:
       "Choose a speed and the extension will apply it to the active Uninettuno video.",
@@ -80,6 +85,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     statusUnableToJump: "Unable to jump to marker.",
     statusInvalidPlaybackRate: "Invalid playback rate selected.",
     statusUnableApplyPlaybackRate: "Unable to apply playback rate.",
+    statusAutoplayEnabled:
+      "Autoplay enabled: next lesson will start when the video ends.",
+    statusAutoplayDisabled: "Autoplay disabled.",
     statusPageNotReady:
       "This page is not ready for the extension yet. Reload the page and try again.",
     markerSavedAt: "Saved at {time}",

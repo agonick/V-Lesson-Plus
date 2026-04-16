@@ -54,6 +54,9 @@ interface SeekToTimeResponse {
 
 const TOAST_ID = "v-lesson-plus-toast";
 const TOAST_HIDE_DELAY_MS = 1500;
+const AUTOPLAY_NEXT_STORAGE_KEY = "vlp_autoplayNextLesson";
+const NEXT_LESSON_BUTTON_ID = "ctl01_mainContent_ctl00_hlLezioneSuccessiva";
+let autoplayNextLessonEnabled = false;
 
 function getVideoElement(): HTMLMediaElement | null {
   return getFirstVjsTechElement(document);
@@ -219,10 +222,43 @@ function showToast(message: string, isError = false): void {
   }, TOAST_HIDE_DELAY_MS);
 }
 
+function clickNextLessonIfPresent(): void {
+  const nextLessonButton = document.getElementById(
+    NEXT_LESSON_BUTTON_ID,
+  ) as HTMLElement | null;
+
+  if (!nextLessonButton) {
+    console.log(
+      `[V-Lesson Plus] Autoplay enabled but next lesson button #${NEXT_LESSON_BUTTON_ID} was not found.`,
+    );
+    return;
+  }
+
+  nextLessonButton.click();
+  console.log("[V-Lesson Plus] Autoplay triggered next lesson click.");
+}
+
+async function loadAutoplayNextSetting(): Promise<void> {
+  try {
+    const result = await chrome.storage.local.get(AUTOPLAY_NEXT_STORAGE_KEY);
+    autoplayNextLessonEnabled = result[AUTOPLAY_NEXT_STORAGE_KEY] === true;
+  } catch (error) {
+    autoplayNextLessonEnabled = false;
+    console.log("[V-Lesson Plus] Failed to load autoplay setting:", error);
+  }
+}
+
 const video = getVideoElement();
 
 if (video) {
   console.log("[V-Lesson Plus] Found .vjs-tech element on this page:", video);
+
+  loadAutoplayNextSetting().catch((error) => {
+    console.log(
+      "[V-Lesson Plus] Failed to initialize autoplay setting:",
+      error,
+    );
+  });
 
   // Auto-apply saved playback rate on page load
   async function applyStoredPlaybackRate(): Promise<void> {
@@ -279,6 +315,11 @@ if (video) {
 
   // Listen for storage changes (markers added/deleted from popup)
   chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "local" && AUTOPLAY_NEXT_STORAGE_KEY in changes) {
+      autoplayNextLessonEnabled =
+        changes[AUTOPLAY_NEXT_STORAGE_KEY]?.newValue === true;
+    }
+
     if (areaName === "local" && changes.vlp_markers) {
       setupTimelineMarkers().catch((error) => {
         console.log(
@@ -287,6 +328,14 @@ if (video) {
         );
       });
     }
+  });
+
+  video.addEventListener("ended", () => {
+    if (!autoplayNextLessonEnabled) {
+      return;
+    }
+
+    clickNextLessonIfPresent();
   });
 } else {
   console.log("[V-Lesson Plus] No .vjs-tech element found on this page.");
