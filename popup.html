@@ -17,7 +17,7 @@
 
       <!-- Supported section -->
       <div id="supportedSection" class="hidden extension-layout">
-        <section class="panel lesson-details-panel">
+        <section id="lessonDetailsPanel" class="panel lesson-details-panel">
           <h2 data-i18n="lessonDetailsTitle">Lesson Details</h2>
           <dl class="lesson-details-list">
             <div class="lesson-details-row">
@@ -39,15 +39,6 @@
             <div class="lesson-details-row">
               <dt data-i18n="detailLessonName">Lesson Name</dt>
               <dd id="lessonName">-</dd>
-            </div>
-            <div class="lesson-details-row lesson-details-toggle-row">
-              <dt data-i18n="detailAutoplayNext">Autoplay Next</dt>
-              <dd>
-                <label class="switch" for="autoplayNextToggle">
-                  <input id="autoplayNextToggle" type="checkbox" />
-                  <span class="switch-slider" aria-hidden="true"></span>
-                </label>
-              </dd>
             </div>
           </dl>
         </section>
@@ -75,6 +66,21 @@
               2x speed may result in incomplete tracking. Use 1.25x or 1.5x for
               safety. Always verify your tracking status.
             </span>
+          </div>
+        </section>
+
+        <section class="panel autoplay-panel">
+          <h2 data-i18n="autoplayTitle">Autoplay</h2>
+          <p class="message" data-i18n="autoplayDescription">
+            Automatically open the next lesson when the current video ends.
+          </p>
+
+          <div class="autoplay-toggle-row">
+            <span data-i18n="autoplayNextLabel">Autoplay Next Lesson</span>
+            <label class="switch" for="autoplayNextToggle">
+              <input id="autoplayNextToggle" type="checkbox" />
+              <span class="switch-slider" aria-hidden="true"></span>
+            </label>
           </div>
         </section>
 

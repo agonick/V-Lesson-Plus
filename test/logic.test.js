@@ -2,12 +2,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  MARKERS_STORAGE_KEY,
   normalizePlaybackRate,
   getFirstVjsTechElement,
   applyPlaybackRateToDocument,
   normalizeLessonUrl,
   formatMarkerTime,
   validateMarkerLabel,
+  getStoredMarkersForUrl,
 } = require('../dist/logic.js');
 
 test('normalizePlaybackRate accepts allowed numeric values', () => {
@@ -95,4 +97,91 @@ test('validateMarkerLabel trims and rejects unsafe labels', () => {
   assert.equal(validateMarkerLabel(''), '');
   assert.equal(validateMarkerLabel('<script>alert(1)</script>'), null);
   assert.equal(validateMarkerLabel('name_01'), null);
+});
+
+test('validateMarkerLabel rejects labels longer than 80 chars', () => {
+  const overLimit = 'a'.repeat(81);
+  assert.equal(validateMarkerLabel(overLimit), null);
+});
+
+test('getStoredMarkersForUrl returns only valid markers for a lesson', async () => {
+  const normalizedUrl = 'https://example.com/lesson?id=42';
+  const validMarker = {
+    id: 'm1',
+    time: 15,
+    createdAt: 1700000000000,
+    label: 'Intro',
+  };
+  const invalidMarker = {
+    id: 'm2',
+    time: 30,
+    createdAt: 1700000000001,
+    label: '<bad>',
+  };
+
+  const originalChrome = globalThis.chrome;
+  globalThis.chrome = {
+    storage: {
+      local: {
+        async get(key) {
+          assert.equal(key, MARKERS_STORAGE_KEY);
+          return {
+            [MARKERS_STORAGE_KEY]: {
+              [normalizedUrl]: [validMarker, invalidMarker, null],
+            },
+          };
+        },
+      },
+    },
+  };
+
+  try {
+    const markers = await getStoredMarkersForUrl(normalizedUrl);
+    assert.deepEqual(markers, [validMarker]);
+  } finally {
+    globalThis.chrome = originalChrome;
+  }
+});
+
+test('getStoredMarkersForUrl returns empty list for malformed storage payload', async () => {
+  const originalChrome = globalThis.chrome;
+  globalThis.chrome = {
+    storage: {
+      local: {
+        async get() {
+          return { [MARKERS_STORAGE_KEY]: 'invalid-store' };
+        },
+      },
+    },
+  };
+
+  try {
+    const markers = await getStoredMarkersForUrl('https://example.com/lesson');
+    assert.deepEqual(markers, []);
+  } finally {
+    globalThis.chrome = originalChrome;
+  }
+});
+
+test('getStoredMarkersForUrl returns empty list when storage throws', async () => {
+  const originalChrome = globalThis.chrome;
+  const originalConsoleLog = console.log;
+  console.log = () => {};
+  globalThis.chrome = {
+    storage: {
+      local: {
+        async get() {
+          throw new Error('storage failure');
+        },
+      },
+    },
+  };
+
+  try {
+    const markers = await getStoredMarkersForUrl('https://example.com/lesson');
+    assert.deepEqual(markers, []);
+  } finally {
+    globalThis.chrome = originalChrome;
+    console.log = originalConsoleLog;
+  }
 });

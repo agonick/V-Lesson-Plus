@@ -30,6 +30,7 @@ export interface PopupElements {
   status: HTMLElement;
   supportedSection: HTMLDivElement;
   notSupportedSection: HTMLDivElement;
+  lessonDetailsPanel: HTMLElement;
   saveMarkerButton: HTMLButtonElement;
   markerLabelInput: HTMLInputElement;
   markersList: HTMLUListElement;

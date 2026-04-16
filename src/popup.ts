@@ -30,6 +30,18 @@ import type {
 } from "./popup/types";
 
 const AUTOPLAY_NEXT_STORAGE_KEY = "vlp_autoplayNextLesson";
+const DEV_MODE_QUERY_PARAM = "devMode";
+
+function isDevModeEnabled(search: string): boolean {
+  const value = new URLSearchParams(search).get(DEV_MODE_QUERY_PARAM);
+  if (!value) {
+    return false;
+  }
+
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+}
+
+const devModeEnabled = isDevModeEnabled(window.location.search);
 
 function getPopupElements(): PopupElements {
   const playbackRateSelect = document.getElementById(
@@ -42,6 +54,9 @@ function getPopupElements(): PopupElements {
   const notSupportedSection = document.getElementById(
     "notSupportedSection",
   ) as HTMLDivElement | null;
+  const lessonDetailsPanel = document.getElementById(
+    "lessonDetailsPanel",
+  ) as HTMLElement | null;
   const saveMarkerButton = document.getElementById(
     "saveMarkerButton",
   ) as HTMLButtonElement | null;
@@ -84,6 +99,7 @@ function getPopupElements(): PopupElements {
     !status ||
     !supportedSection ||
     !notSupportedSection ||
+    !lessonDetailsPanel ||
     !saveMarkerButton ||
     !markerLabelInput ||
     !markersList ||
@@ -105,6 +121,7 @@ function getPopupElements(): PopupElements {
     status,
     supportedSection,
     notSupportedSection,
+    lessonDetailsPanel,
     saveMarkerButton,
     markerLabelInput,
     markersList,
@@ -418,14 +435,17 @@ async function initializePopup(): Promise<void> {
     }
 
     showSupported();
+    elements.lessonDetailsPanel.classList.toggle("hidden", !devModeEnabled);
     currentLessonUrl = normalizeLessonUrl(context.url);
-    renderLessonDetails(context.lessonDetails, {
-      lessonCourseName: elements.lessonCourseName,
-      lessonCourseId: elements.lessonCourseId,
-      lessonProfessor: elements.lessonProfessor,
-      lessonNumber: elements.lessonNumber,
-      lessonName: elements.lessonName,
-    });
+    if (devModeEnabled) {
+      renderLessonDetails(context.lessonDetails, {
+        lessonCourseName: elements.lessonCourseName,
+        lessonCourseId: elements.lessonCourseId,
+        lessonProfessor: elements.lessonProfessor,
+        lessonNumber: elements.lessonNumber,
+        lessonName: elements.lessonName,
+      });
+    }
     await renderMarkersForCurrentLesson();
   } catch (error) {
     console.log("[V-Lesson Plus] Failed to initialize popup:", error);

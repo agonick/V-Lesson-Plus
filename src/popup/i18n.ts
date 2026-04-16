@@ -11,7 +11,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     detailProfessor: "Docente",
     detailLessonNumber: "Numero lezione",
     detailLessonName: "Nome lezione",
-    detailAutoplayNext: "Autoplay successiva",
+    autoplayTitle: "Autoplay",
+    autoplayDescription:
+      "Apri automaticamente la lezione successiva quando il video corrente termina.",
+    autoplayNextLabel: "Autoplay lezione successiva",
     playbackTitle: "Riproduzione",
     playbackDescription:
       "Scegli una velocita e l'estensione la applichera al video Uninettuno attivo.",
@@ -56,7 +59,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     detailProfessor: "Professor",
     detailLessonNumber: "Lesson Number",
     detailLessonName: "Lesson Name",
-    detailAutoplayNext: "Autoplay Next",
+    autoplayTitle: "Autoplay",
+    autoplayDescription:
+      "Automatically open the next lesson when the current video ends.",
+    autoplayNextLabel: "Autoplay Next Lesson",
     playbackTitle: "Playback",
     playbackDescription:
       "Choose a speed and the extension will apply it to the active Uninettuno video.",

@@ -93,14 +93,18 @@ h1 {
   overflow-wrap: anywhere;
 }
 
-.lesson-details-toggle-row {
-  align-items: center;
+.autoplay-panel {
+  gap: 10px;
 }
 
-.lesson-details-toggle-row dd {
+.autoplay-toggle-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
 }
 
 .switch {
