@@ -273,9 +273,9 @@ if (video) {
           const currentVideo = ensureVideoElement(document);
           if (currentVideo) {
             (currentVideo as any).playbackRate = normalizedRate;
-          console.log(
-            `[V-Lesson Plus] Applied stored playback rate ${normalizedRate}x on page load.`,
-          );
+            console.log(
+              `[V-Lesson Plus] Applied stored playback rate ${normalizedRate}x on page load.`,
+            );
           }
         }
       }

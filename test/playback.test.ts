@@ -1,5 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { setStoredPlaybackRate, getStoredPlaybackRate } from '../src/popup/playback';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  setStoredPlaybackRate,
+  getStoredPlaybackRate,
+} from "../src/popup/playback";
 
 // Mock chrome.storage
 const mockStorageLocal = {
@@ -19,7 +22,7 @@ const mockStorageLocal = {
   }),
 };
 
-describe('playback rate storage operations', () => {
+describe("playback rate storage operations", () => {
   beforeEach(() => {
     mockStorageLocal.data = {};
     mockStorageLocal.get.mockClear();
@@ -27,49 +30,49 @@ describe('playback rate storage operations', () => {
     vi.clearAllMocks();
   });
 
-  it('saves playback rate to storage', async () => {
+  it("saves playback rate to storage", async () => {
     expect(mockStorageLocal.data).toEqual({});
-    await setStoredPlaybackRate(mockStorageLocal as any, '1.5');
+    await setStoredPlaybackRate(mockStorageLocal as any, "1.5");
     const result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('1.5');
+    expect(result).toBe("1.5");
   });
 
-  it('stores different playback rates correctly', async () => {
-    await setStoredPlaybackRate(mockStorageLocal as any, '1');
+  it("stores different playback rates correctly", async () => {
+    await setStoredPlaybackRate(mockStorageLocal as any, "1");
     let result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('1');
+    expect(result).toBe("1");
 
-    await setStoredPlaybackRate(mockStorageLocal as any, '2');
+    await setStoredPlaybackRate(mockStorageLocal as any, "2");
     result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('2');
+    expect(result).toBe("2");
   });
 
-  it('returns default rate when storage is empty', async () => {
+  it("returns default rate when storage is empty", async () => {
     const result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('1');
+    expect(result).toBe("1");
   });
 
-  it('returns stored rate when available', async () => {
-    mockStorageLocal.data.vlp_lastPlaybackRate = '1.5';
+  it("returns stored rate when available", async () => {
+    mockStorageLocal.data.vlp_lastPlaybackRate = "1.5";
     const result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('1.5');
+    expect(result).toBe("1.5");
   });
 
-  it('handles non-string values gracefully', async () => {
+  it("handles non-string values gracefully", async () => {
     mockStorageLocal.data.vlp_lastPlaybackRate = 123;
     const result = await getStoredPlaybackRate(mockStorageLocal as any);
-    expect(result).toBe('1');
+    expect(result).toBe("1");
   });
 });
 
-describe('Issue #2: playback persistence ordering', () => {
+describe("Issue #2: playback persistence ordering", () => {
   beforeEach(() => {
     mockStorageLocal.data = {};
     mockStorageLocal.get.mockClear();
     mockStorageLocal.set.mockClear();
   });
 
-  it('documents the required behavior: only save AFTER verifying response.ok', () => {
+  it("documents the required behavior: only save AFTER verifying response.ok", () => {
     // ISSUE #2: Playback rate is persisted to storage BEFORE checking if
     // the content script successfully applied it to the video.
     //
@@ -89,8 +92,11 @@ describe('Issue #2: playback persistence ordering', () => {
     //
     // This test verifies the contract: response checking before persistence
 
-    const successResponse = { ok: true, message: 'Playback rate set to 1.5.' };
-    const failureResponse = { ok: false, message: 'No .vjs-tech element found' };
+    const successResponse = { ok: true, message: "Playback rate set to 1.5." };
+    const failureResponse = {
+      ok: false,
+      message: "No .vjs-tech element found",
+    };
 
     // Only save if ok is true
     expect(successResponse.ok === true).toBe(true);
