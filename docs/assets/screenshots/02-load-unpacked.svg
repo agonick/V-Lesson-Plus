@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Click Load Unpacked</title>
+  <desc id="desc">Placeholder screenshot for choosing the extracted extension folder.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7dd3fc" />
+      <stop offset="100%" stop-color="#f3f4f6" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#bg)" />
+  <rect x="120" y="100" width="1040" height="600" rx="24" fill="#ffffff" stroke="#d1d5db" stroke-width="4" />
+  <text x="160" y="250" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="52" font-weight="700" fill="#214f4a">Step 2</text>
+  <text x="160" y="322" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="40" fill="#1e3a8a">Click Load unpacked</text>
+  <text x="160" y="376" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="28" fill="#2563eb">Select the folder containing manifest.json.</text>
+  <rect x="170" y="430" width="280" height="64" rx="14" fill="#10b981" />
+  <text x="214" y="472" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="30" font-weight="600" fill="#f9fffe">Load unpacked</text>
+  <path d="M470 462 L620 462" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
+  <path d="M610 448 L638 462 L610 476" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="660" y="410" width="380" height="180" rx="18" fill="#f3f4f6" stroke="#d1d5db" />
+  <text x="700" y="472" font-family="IBM Plex Mono, Menlo, monospace" font-size="24" fill="#35312c">v-lesson-plus/</text>
+  <text x="700" y="512" font-family="IBM Plex Mono, Menlo, monospace" font-size="24" fill="#35312c">manifest.json</text>
+</svg>

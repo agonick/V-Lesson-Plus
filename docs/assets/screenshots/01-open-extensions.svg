@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Open Chrome Extensions</title>
+  <desc id="desc">Placeholder screenshot for opening chrome://extensions and enabling developer mode.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7dd3fc" />
+      <stop offset="100%" stop-color="#f3f4f6" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#bg)" />
+  <rect x="120" y="100" width="1040" height="600" rx="24" fill="#ffffff" stroke="#d1d5db" stroke-width="4" />
+  <rect x="160" y="150" width="600" height="46" rx="12" fill="#f3f4f6" stroke="#d1d5db" />
+  <text x="182" y="180" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="24" fill="#1e3a8a">chrome://extensions</text>
+  <text x="160" y="270" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="52" font-weight="700" fill="#214f4a">Step 1</text>
+  <text x="160" y="340" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="40" fill="#1e3a8a">Open Chrome Extensions</text>
+  <text x="160" y="394" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="28" fill="#2563eb">Turn on Developer mode (top-right).</text>
+  <rect x="872" y="214" width="220" height="44" rx="22" fill="#10b981" />
+  <circle cx="1066" cy="236" r="16" fill="#ffffff" />
+  <text x="890" y="242" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="20" fill="#ffffff">Developer mode</text>
+</svg>

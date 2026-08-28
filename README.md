@@ -48,6 +48,13 @@ Per visualizzare il pannello dettagli lezione nel popup, abilita il parametro qu
 3. Clicca Carica estensione non pacchettizzata.
 4. Seleziona la cartella del progetto.
 
+### Guida installazione release (pre Chrome Web Store)
+
+Per utenti non tecnici, trovi una guida visuale con screenshot in `docs/index.html`.
+
+- Se pubblichi con GitHub Pages: `https://<username>.github.io/<repo>/`
+- In locale: apri `docs/index.html` nel browser
+
 ### Build
 
 1. Installa dipendenze: `npm install`
@@ -141,5 +148,12 @@ To show lesson details panel in popup, use popup query param `devMode`:
 1. Install dependencies: `npm install`
 2. Build: `npm run build`
 3. Run tests: `npm test`
+
+### Manual Install Guide (pre Chrome Web Store)
+
+For non-technical users, a visual guide with screenshots is available in `docs/index.html`.
+
+- If you publish with GitHub Pages: `https://<username>.github.io/<repo>/`
+- Local preview: open `docs/index.html` in your browser
 
 Tests cover shared logic including playback normalization/apply logic, lesson URL normalization, marker time formatting, label validation, and marker storage filtering.

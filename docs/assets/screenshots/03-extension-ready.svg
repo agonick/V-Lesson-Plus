@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Extension Ready</title>
+  <desc id="desc">Placeholder screenshot for extension installed and pinned in toolbar.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6f2ed" />
+      <stop offset="100%" stop-color="#f6efe3" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="800" fill="url(#bg)" />
+  <rect x="120" y="100" width="1040" height="600" rx="24" fill="#fffdf9" stroke="#d8cfbf" stroke-width="4" />
+  <rect x="150" y="130" width="980" height="68" rx="12" fill="#f2efe8" />
+  <circle cx="1000" cy="164" r="20" fill="#1c6e67" />
+  <text x="1036" y="171" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="24" fill="#2f2a25">V-Lesson Plus pinned</text>
+  <text x="160" y="292" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="52" font-weight="700" fill="#214f4a">Step 3</text>
+  <text x="160" y="364" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="40" fill="#2f2a25">Open a supported lesson page</text>
+  <text x="160" y="418" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="28" fill="#5f564d">Use the popup to set playback speed and save markers.</text>
+  <rect x="170" y="466" width="420" height="144" rx="16" fill="#fff4e3" stroke="#e3c190" />
+  <text x="198" y="518" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#744716">Pre-Web-Store release</text>
+  <text x="198" y="560" font-family="Space Grotesk, Segoe UI, sans-serif" font-size="24" fill="#744716">Manual update needed for each new version.</text>
+</svg>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">\
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Install V-Lesson Plus | Guida EN/IT</title>
+    <meta
+      name="description"
+      content="Manual install guide for V-Lesson Plus before Chrome Web Store release (English and Italian)."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <nav class="lang-switch" aria-label="Language switch">
+            <a class="lang-link" href="#guide-en">EN</a>
+            <a class="lang-link" href="#guida-it">IT</a>
+          </nav>
+          <span class="badge">Pre Chrome Web Store</span>
+          <h1>Install V-Lesson Plus in 2 minutes</h1>
+          <p class="hero-copy">
+            This page helps you install the extension manually from the latest
+            GitHub release zip while it is not yet published on the Chrome Web
+            Store.
+          </p>
+          <p class="hero-copy">
+            Questa pagina ti aiuta a installare manualmente l'estensione dallo
+            zip dell'ultima release GitHub, finche non sara pubblicata sul
+            Chrome Web Store.
+          </p>
+          <div class="hero-actions">
+            <a
+              class="button button-primary"
+              href="https://github.com/agonick/v-lesson-plus/releases/latest"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Download latest release
+            </a>
+            <a
+              class="button button-ghost"
+              href="https://github.com/agonick/v-lesson-plus"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View source on GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section" id="guide-en">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">English</p>
+            <h2>Manual install guide</h2>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Before you start</p>
+            <h2>What you need</h2>
+          </div>
+          <div class="cards">
+            <article class="card">
+              <h3>Google Chrome</h3>
+              <p>
+                Use a desktop version of Chrome. Manual extension loading is not
+                available on mobile.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Release zip file</h3>
+              <p>
+                Download the latest release from GitHub. Do not use the source
+                code zip.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Developer mode</h3>
+              <p>
+                You must enable Developer mode on
+                <span class="code-chip">chrome://extensions</span>.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="install-steps">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Step by step</p>
+            <h2>Manual install from zip</h2>
+          </div>
+          <ol class="steps">
+            <li class="step">
+              <span class="step-number">1</span>
+              <h3>Download the latest release zip</h3>
+              <p>
+                Open the latest release page and download the zip package made
+                for installation.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">2</span>
+              <h3>Extract the zip</h3>
+              <p>
+                Unzip it into a folder that you keep on your computer (for
+                example in Documents).
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">3</span>
+              <h3>Open Chrome extensions page</h3>
+              <p>
+                Go to <span class="code-chip">chrome://extensions</span> and
+                enable Developer mode in the top-right corner.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">4</span>
+              <h3>Load unpacked</h3>
+              <p>
+                Click <strong>Load unpacked</strong> and select the extracted
+                extension folder that contains the
+                <span class="code-chip">manifest.json</span> file.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">5</span>
+              <h3>Pin and use</h3>
+              <p>
+                Open a supported Uninettuno lesson page and pin V-Lesson Plus
+                from the Chrome toolbar puzzle icon.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section" id="screenshots">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Visual guide</p>
+            <h2>Screenshots</h2>
+          </div>
+          <div class="gallery">
+            <figure class="shot">
+              <img
+                src="assets/screenshots/01-open-extensions.svg"
+                alt="Open chrome extensions page"
+              />
+              <figcaption>
+                Open <strong>chrome://extensions</strong> and enable Developer
+                mode.
+              </figcaption>
+            </figure>
+            <figure class="shot">
+              <img
+                src="assets/screenshots/02-load-unpacked.svg"
+                alt="Click load unpacked and select folder"
+              />
+              <figcaption>
+                Click <strong>Load unpacked</strong> and select the extracted
+                release folder.
+              </figcaption>
+            </figure>
+            <figure class="shot">
+              <img
+                src="assets/screenshots/03-extension-ready.svg"
+                alt="Extension installed and pinned"
+              />
+              <figcaption>
+                Pin the extension and open the popup on a supported lesson page.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container warning">
+          <strong>Important:</strong> if Chrome says the extension is invalid,
+          make sure you selected the extracted folder containing
+          <span class="code-chip">manifest.json</span>, not the zip file.
+        </div>
+      </section>
+
+      <section class="section" id="guida-it">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Italiano</p>
+            <h2>Guida installazione manuale</h2>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Prima di iniziare</p>
+            <h2>Cosa ti serve</h2>
+          </div>
+          <div class="cards">
+            <article class="card">
+              <h3>Google Chrome</h3>
+              <p>
+                Usa Chrome su desktop. Il caricamento manuale delle estensioni
+                non e disponibile su mobile.
+              </p>
+            </article>
+            <article class="card">
+              <h3>File zip della release</h3>
+              <p>
+                Scarica l'ultima release da GitHub. Non usare lo zip del codice
+                sorgente.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Modalita sviluppatore</h3>
+              <p>
+                Devi attivare la modalita sviluppatore su
+                <span class="code-chip">chrome://extensions</span>.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="passi-installazione">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Passo per passo</p>
+            <h2>Installazione manuale da zip</h2>
+          </div>
+          <ol class="steps">
+            <li class="step">
+              <span class="step-number">1</span>
+              <h3>Scarica lo zip dell'ultima release</h3>
+              <p>
+                Apri la pagina dell'ultima release e scarica il pacchetto zip
+                preparato per l'installazione.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">2</span>
+              <h3>Estrai lo zip</h3>
+              <p>
+                Estrai il contenuto in una cartella stabile del tuo computer
+                (per esempio Documenti).
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">3</span>
+              <h3>Apri la pagina estensioni di Chrome</h3>
+              <p>
+                Vai su <span class="code-chip">chrome://extensions</span> e
+                attiva la modalita sviluppatore in alto a destra.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">4</span>
+              <h3>Carica estensione non pacchettizzata</h3>
+              <p>
+                Clicca <strong>Carica estensione non pacchettizzata</strong> e
+                seleziona la cartella estratta che contiene il file
+                <span class="code-chip">manifest.json</span>.
+              </p>
+            </li>
+            <li class="step">
+              <span class="step-number">5</span>
+              <h3>Fissa l'icona e usa l'estensione</h3>
+              <p>
+                Apri una lezione supportata su Uninettuno e fissa V-Lesson Plus
+                dalla barra strumenti di Chrome.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section" id="screenshot-it">
+        <div class="container">
+          <div class="section-head">
+            <p class="kicker">Guida visuale</p>
+            <h2>Screenshot</h2>
+          </div>
+          <div class="gallery">
+            <figure class="shot">
+              <img
+                src="assets/screenshots/01-open-extensions.svg"
+                alt="Apri la pagina estensioni di Chrome"
+              />
+              <figcaption>
+                Apri <strong>chrome://extensions</strong> e attiva la modalita
+                sviluppatore.
+              </figcaption>
+            </figure>
+            <figure class="shot">
+              <img
+                src="assets/screenshots/02-load-unpacked.svg"
+                alt="Carica estensione non pacchettizzata"
+              />
+              <figcaption>
+                Clicca <strong>Carica estensione non pacchettizzata</strong> e
+                seleziona la cartella della release estratta.
+              </figcaption>
+            </figure>
+            <figure class="shot">
+              <img
+                src="assets/screenshots/03-extension-ready.svg"
+                alt="Estensione installata e fissata"
+              />
+              <figcaption>
+                Fissa l'estensione e apri il popup su una pagina lezione
+                supportata.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container warning">
+          <strong>Importante:</strong> se Chrome segnala estensione non valida,
+          verifica di avere selezionato la cartella estratta che contiene
+          <span class="code-chip">manifest.json</span> e non il file zip.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>
+          V-Lesson Plus is an unofficial extension for Uninettuno. Source code,
+          changelog, and releases are available on
+          <a
+            href="https://github.com/agonick/v-lesson-plus"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >. V-Lesson Plus e una estensione non ufficiale per Uninettuno.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
