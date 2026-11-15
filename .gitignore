@@ -25,5 +25,6 @@ coverage/
 
 # Temporary/generated assets
 icon.svg.png
+web-ext-artifacts/
 
 .github/plan.md
