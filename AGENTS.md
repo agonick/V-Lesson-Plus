@@ -10,7 +10,7 @@ This project is a Web Extension (compatible with Google Chrome and Mozilla Firef
 - **Core Files**:
   - `src/content.ts`: Injected into `https://www.uninettunouniversity.net/*` to interact with the DOM and video player.
   - `src/logic.ts`: Core business logic decoupled from DOM for testability.
-  - `src/popup.ts`: Logic for the extension's popup UI (`popup.html`).
+  - `src/popup.ts`: Logic for the extension's popup UI (`src/popup/popup.html`).
 
 ## Principal Functions (Features)
 The extension currently has 3 main features:

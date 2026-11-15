@@ -43,8 +43,8 @@ jobs:
         run: |
           zip -r "v-lesson-plus-v${{ steps.version.outputs.version }}.zip" \
             manifest.json \
-            popup.html \
-            popup.css \
+            src/popup/popup.html \
+            src/popup/popup.css \
             icons/ \
             dist/
 
