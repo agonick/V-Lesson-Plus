@@ -28,3 +28,9 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Lint Firefox package
+        run: npm run lint:firefox
+
+      - name: Build Firefox package
+        run: npm run build:firefox
