@@ -33,6 +33,12 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Lint Firefox package
+        run: npm run lint:firefox
+
+      - name: Build Firefox package
+        run: npm run build:firefox
+
       - name: Read version from manifest.json
         id: version
         run: |
@@ -41,7 +47,7 @@ jobs:
 
       - name: Create extension zip
         run: |
-          zip -r "v-lesson-plus-v${{ steps.version.outputs.version }}.zip" \
+          zip -r "v-lesson-plus-chrome-v${{ steps.version.outputs.version }}.zip" \
             manifest.json \
             src/popup/popup.html \
             src/popup/popup.css \
@@ -56,6 +62,9 @@ jobs:
           body: |
             Automated release for V-Lesson Plus v${{ steps.version.outputs.version }}.
 
-            Download the zip below, unzip it, then load the folder as an unpacked extension in Chrome.
-          files: "v-lesson-plus-v${{ steps.version.outputs.version }}.zip"
+            Download the Chrome zip and unzip it to load the extension as an unpacked extension in Chrome.
+            Download the Firefox zip to submit or self-distribute through Mozilla.
+          files: |
+            v-lesson-plus-chrome-v${{ steps.version.outputs.version }}.zip
+            web-ext-artifacts/v-lesson_plus-${{ steps.version.outputs.version }}.zip
           make_latest: true
