@@ -20,7 +20,7 @@
     "build:content": "esbuild src/content.ts --bundle --outfile=dist/content.js --platform=browser",
     "build:popup": "esbuild src/popup.ts --bundle --outfile=dist/popup-bundled.js --platform=browser",
     "build:watch": "tsc --watch",
-    "build:firefox": "npm run build && web-ext build --overwrite-dest --ignore-files \"coverage/**\" \"test/**\" \"docs/**\" \"src/**/*.ts\"",
+    "build:firefox": "npm run build && node scripts/build-firefox-package.mjs",
     "lint:firefox": "web-ext lint --ignore-files \"coverage/**\" \"test/**\" \"docs/**\"",
     "start:firefox": "web-ext run",
     "test": "vitest run",
